@@ -1,0 +1,74 @@
+<html ng-app="restoApp">
+<head>
+  <!-- Angular Material style sheet -->
+  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
+  <!-- Angular Material requires Angular.js Libraries -->
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
+
+  <script type="text/javascript" src="/assets/javascripts/wsSession.js"></script>
+  <script type="text/javascript" src="/assets/javascripts/waiterService.js"></script>
+  <script type="text/javascript" src="/assets/javascripts/waiterController.js"></script>
+  <script type="text/javascript">
+		
+  var restoApp = angular.module('restoApp', ['ngMaterial']);
+
+  restoApp
+   	.constant('waiterWsUrl',"ws://localhost:9000/restos/1/waiters/" + location.search.substring(1))
+	.service('waiterService', ['$rootScope', '$timeout', 'waiterWsUrl', WaiterService] )	
+  	.controller('waiterController', ['$scope', 'waiterService', WaiterController]);
+  
+		
+  </script>
+
+</head>
+
+<body ng-controller="waiterController">
+
+	<div layout="column">
+			<md-toolbar>
+			<div class="md-toolbar-tools">Mozo</div>
+			</md-toolbar>
+			<md-content style="height: 300px;" md-theme="altTheme">
+			<section>
+				<md-list layout="column" layout-padding> 
+				<md-list-item 
+					ng-repeat="msg in messages track by $index"
+					class="md-3-line"> 
+				  <img ng-src="{{message.face}}" class="md-avatar" alt="{{msg.table}}">
+				  <div class="md-list-item-text">
+				  	{{msg.from}}: {{msg.message}}
+				  </div>
+				</md-list-item>
+				</md-list>
+			</section>
+			</md-content>
+
+
+			<md-toolbar>
+		      <div class="md-toolbar-tools">
+				<div>
+					<input type="text" ng-model="message">
+					<button ng-click="send()">SEND!</button>
+				</div>
+		        <md-button class="md-icon-button" aria-label="Settings">
+		          <md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+		        </md-button>
+		        <md-button class="md-icon-button" aria-label="Favorite">
+		          <md-icon md-svg-icon="img/icons/favorite.svg" style="color: greenyellow;"></md-icon>
+		        </md-button>
+		        <md-button class="md-icon-button" aria-label="More">
+		          <md-icon md-svg-icon="img/icons/more_vert.svg"></md-icon>
+		        </md-button>
+		      </div>
+		    </md-toolbar>
+
+		</div>
+		
+</body>
+</html>
+

@@ -1,0 +1,11 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                           		 controllers.Application.index
+PUT     /users/:nick/device-reg-id           controllers.Application.registerDevice(nick: String)
+POST    /users/:nick/messages                controllers.Application.sendMessage(nick: String)
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
