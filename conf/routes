@@ -3,9 +3,13 @@
 # ~~~~
 
 # Home page
-GET     /                           		 controllers.Application.index
+#GET     /                           		 controllers.ApiSpecs.api
 PUT     /users/:nick/device-reg-id           controllers.Application.registerDevice(nick: String)
 POST    /users/:nick/messages                controllers.Application.sendMessage(nick: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
+# swagger 
+GET   /docs/swagger.json         	controllers.ApiSpecs.specs
+GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)

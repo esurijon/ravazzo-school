@@ -1,7 +1,6 @@
-package model
+package push
 
 import play.api.libs.json.JsObject
-import com.fasterxml.jackson.annotation.JsonFormat
 import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 
