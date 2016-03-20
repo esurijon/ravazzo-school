@@ -2,14 +2,35 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-#GET     /                           		 controllers.ApiSpecs.api
+### NoDocs ###
+GET     /                           		 @controllers.Default.redirect(to = "/docs/swagger-ui/index.html?url=/docs/swagger.json")
+
+###
+#  summary: register a device id with a nick name 
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: '#/definitions/model.ChatInboundMessage'
+###
 PUT     /users/:nick/device-reg-id           controllers.Application.registerDevice(nick: String)
+
+###
+#  summary: register a device id with a nick name 
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: '#/definitions/model.ChatOutboundMessage'
+###
 POST    /users/:nick/messages                controllers.Application.sendMessage(nick: String)
 
+### NoDocs ###
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-# swagger 
+# Swagger 
+### NoDocs ###
 GET   /docs/swagger.json         	controllers.ApiSpecs.specs
+### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)
