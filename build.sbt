@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   jdbc,
   cache,
   ws,
-  "org.webjars" % "swagger-ui" % "2.1.4",
+  "org.webjars" % "swagger-ui" % "2.1.8-M1",
   "com.iheart" %% "play-swagger" % "0.2.0",
   specs2 % Test
 )
