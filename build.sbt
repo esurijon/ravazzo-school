@@ -1,4 +1,4 @@
-name := """resto"""
+name := """ravazzo-chat"""
 
 version := "1.0-SNAPSHOT"
 
