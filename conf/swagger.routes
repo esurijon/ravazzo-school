@@ -1,0 +1,4 @@
+### NoDocs ###
+GET   /swagger.json         	controllers.ApiSpecs.specs
+### NoDocs ###
+GET   /swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)

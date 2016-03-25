@@ -2,35 +2,69 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+
 ### NoDocs ###
 GET     /                           		 @controllers.Default.redirect(to = "/docs/swagger-ui/index.html?url=/docs/swagger.json")
-
-###
-#  summary: register a device id with a nick name 
-#  responses:
-#    200:
-#      description: success
-#      schema:
-#        $ref: '#/definitions/model.ChatInboundMessage'
-###
-PUT     /users/:nick/device-reg-id           controllers.Application.registerDevice(nick: String)
-
-###
-#  summary: register a device id with a nick name 
-#  responses:
-#    200:
-#      description: success
-#      schema:
-#        $ref: '#/definitions/model.ChatOutboundMessage'
-###
-POST    /users/:nick/messages                controllers.Application.sendMessage(nick: String)
 
 ### NoDocs ###
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-# Swagger 
-### NoDocs ###
-GET   /docs/swagger.json         	controllers.ApiSpecs.specs
-### NoDocs ###
-GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)
+-> /egress-manager 	egress.Routes
+-> /docs 			swagger.Routes
+
+###
+#  summary: Retrieve person info 
+#  description: Retrieve children, staff or parent basic info only if authenticated user has access to it 
+#  tags: 
+#   - user
+#  parameters:
+#    - name: Session
+#      in: header
+#      description: Session information of logged user
+#      required: true,
+#      type: string
+#  responses:
+#    200:
+#      description: Person basic info
+#      schema:
+#        $ref: '#/definitions/model.Person'
+###
+GET     /persons/:id           controllers.EgressManager.noop2(id)
+
+###
+#  summary: Register device 
+#  description: Associates device with a user account 
+#  tags: 
+#   - user
+#  parameters:
+#    - name: body
+#      in: body
+#      description: device and user credentials
+#      required: true,
+#      schema:
+#        $ref: '#/definitions/model.User'
+#  responses:
+#    204:
+#      description: success
+###
+POST     /device-registry           controllers.EgressManager.noop()
+
+###
+#  summary: Login registered user 
+#  description: Creates a new session for a registered user 
+#  tags: 
+#   - user
+#  parameters:
+#    - name: body
+#      in: body
+#      description: device registration id
+#      required: true,
+#      type: string
+#  responses:
+#    200:
+#      description: User info
+#      schema:
+#        $ref: '#/definitions/model.User'
+###
+POST     /login           controllers.EgressManager.noop()

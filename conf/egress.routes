@@ -1,0 +1,118 @@
+###
+#  summary: Retrieve assigned children to pickup 
+#  description: Retrieve assigned children to pickup by the authenticated parent for the current egress turn. 
+#  parameters:
+#    - name: Session
+#      in: header
+#      description: Session information of logged in parent
+#      required: true,
+#      type: string
+#  responses:
+#    200:
+#      description: List of departure entries
+#      schema: 
+#        type: array
+#        items: 
+#          $ref: '#/definitions/model.Departure'
+###
+GET     /assigned-children           controllers.EgressManager.noop()
+
+###
+#  summary: Request a child to come out
+#  description: Request a child to come out of school.
+#               Request must be made only by an authorized parent.
+#               The system will push a notification to corresponding teacher.
+#  parameters:
+#    - name: Session
+#      in: header
+#      description: Session information of logged in parent
+#      required: true,
+#      type: string
+#    - name: body
+#      in: body
+#      description: list o children ids
+#      name: body
+#      required: true,
+#      schema: 
+#        type: array
+#        items: 
+#          type: string
+#  responses:
+#    204:
+#      description: success
+#    400:
+#      description: bad request
+#    401:
+#      description: User is not authenticated
+#    403:
+#      description: User is authenticated but has no permissions to execute this command
+#    PUSH:
+#      description: Message pushed to dispatcher user in data property
+#      schema:
+#        $ref: '#/definitions/model.Departure'
+###
+POST     /departure-request           controllers.EgressManager.noop()
+
+###
+#  summary: Notify child has departed
+#  description: Dispatcher user notifies that a children has departed
+#  parameters:
+#    - name: Session
+#      in: header
+#      description: Session information of logged in parent
+#      required: true,
+#      type: string
+#    - name: body
+#      in: body
+#      description: children id
+#      name: body
+#      required: true,
+#      schema: 
+#        type: string
+#  responses:
+#    204:
+#      description: success
+#    400:
+#      description: bad request
+#    401:
+#      description: User is not authenticated
+#    403:
+#      description: User is authenticated but has no permissions to execute this command
+#    PUSH:
+#      description: Message pushed to parent user in data property
+#      schema:
+#        $ref: '#/definitions/model.Departure'
+###
+POST     /departure-notification      controllers.EgressManager.noop()
+
+###
+#  summary: pause/resume departure
+#  description: Issued by Gatekeeper user, notifies to dispatcher user to pause/resume children egress 
+#  parameters:
+#    - name: Session
+#      in: header
+#      description: Session information of logged in parent
+#      required: true,
+#      type: string
+#    - name: body
+#      in: body
+#      description: value to update status
+#      name: body
+#      required: true,
+#      schema: 
+#        type: string
+#  responses:
+#    204:
+#      description: success
+#    400:
+#      description: bad request
+#    401:
+#      description: User is not authenticated
+#    403:
+#      description: User is authenticated but has no permissions to execute this command
+#    PUSH:
+#      description: Message pushed to dispatcher user in data property
+#      schema:
+#        type: string
+###
+PUT     /status					      controllers.EgressManager.noop()
