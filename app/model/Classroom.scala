@@ -1,3 +1,3 @@
 package model
 
-case class Classroom()
+case class Classroom(id: Id, name: String)

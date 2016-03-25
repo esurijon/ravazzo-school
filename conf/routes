@@ -65,6 +65,6 @@ POST     /device-registry           controllers.EgressManager.noop()
 #    200:
 #      description: User info
 #      schema:
-#        $ref: '#/definitions/model.User'
+#        $ref: '#/definitions/model.Credentials'
 ###
 POST     /login           controllers.EgressManager.noop()

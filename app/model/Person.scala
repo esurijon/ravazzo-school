@@ -1,9 +1,23 @@
 package model
 
-import play.api.libs.json.JsObject
-import com.fasterxml.jackson.annotation.JsonFormat
-import play.api.libs.json.Json
+import java.net.URI
+import java.util.Date
 
-class Person(name: String)
+class Person(
+  id: Id,
+  firstName: String,
+  lastName: String,
+  nickName: String,
+  birthDate: Date,
+  picture: Option[URI])
 
-class User(s: String) extends Person(s)
+class User(
+  id: Id,
+  firstName: String,
+  lastName: String,
+  nickName: String,
+  birthDate: Date,
+  picture: Option[URI],
+  email: String,
+  password: String,
+  cellPhoneNumber: String) extends Person(id, firstName, lastName, nickName, birthDate, picture)
