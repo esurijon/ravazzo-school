@@ -18,6 +18,7 @@ libraryDependencies ++= Seq(
 // SQL deps
 libraryDependencies ++= Seq(
   jdbc,
+  "com.h2database" % "h2" % "1.4.191",
   "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
   "com.typesafe.play" %% "anorm" % "2.4.0"
 )
@@ -25,7 +26,7 @@ libraryDependencies ++= Seq(
 // Swagger deps
 libraryDependencies ++= Seq(
   "org.webjars" % "swagger-ui" % "2.1.8-M1",
-  "com.iheart" %% "play-swagger" % "0.2.0",
+  "com.iheart" %% "play-swagger" % "0.2.0"
 )
 
 // Test deps
