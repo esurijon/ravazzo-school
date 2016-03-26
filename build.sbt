@@ -6,12 +6,30 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.6"
 
+// Base deps
 libraryDependencies ++= Seq(
-  jdbc,
   cache,
   ws,
   "org.webjars" % "swagger-ui" % "2.1.8-M1",
   "com.iheart" %% "play-swagger" % "0.2.0",
+  specs2 % Test
+)
+
+// SQL deps
+libraryDependencies ++= Seq(
+  jdbc,
+  "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
+  "com.typesafe.play" %% "anorm" % "2.4.0"
+)
+
+// Swagger deps
+libraryDependencies ++= Seq(
+  "org.webjars" % "swagger-ui" % "2.1.8-M1",
+  "com.iheart" %% "play-swagger" % "0.2.0",
+)
+
+// Test deps
+libraryDependencies ++= Seq(
   specs2 % Test
 )
 
