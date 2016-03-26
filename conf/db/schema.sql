@@ -1,4 +1,4 @@
-DROP SCHEMA school CASCADE;
+DROP SCHEMA IF EXISTS school;
 
 CREATE SCHEMA school;
 
@@ -9,7 +9,7 @@ CREATE TABLE school.gate
   address varchar(100) NOT NULL,
   coords varchar(100),
   assigned_staff varchar(50) NOT NULL,
-  CONSTRAINT gate_id_pk PRIMARY KEY ("id")
+  CONSTRAINT gate_id_pk PRIMARY KEY (id)
 );
 COMMENT ON TABLE school.gate
   IS 'A gate through which children leave school';
