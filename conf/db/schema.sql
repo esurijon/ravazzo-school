@@ -116,7 +116,7 @@ CREATE TABLE school.shift
   end_time time NOT NULL,
   CONSTRAINT shift_id_pk PRIMARY KEY (id)
 );
-COMMENT ON TABLE school.turn
+COMMENT ON TABLE school.shift
   IS 'Defines through which gate and at which time, children of a classroom must leave school';
 
   
