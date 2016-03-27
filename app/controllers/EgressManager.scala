@@ -21,7 +21,7 @@ class EgressManager @Inject() (cache: CacheApi, pushSevice: PushService, @NamedD
 
   def getAssignedChildren = Action {
 
-    val parentId = ""
+    val parentId = "esurijon"
     val departuresByParentQuery = s"""
 SELECT 
   parent.id as parent, 
@@ -40,9 +40,9 @@ FROM
 WHERE 
   permanent_authorization.children = children.id AND
   children.classroom = classroom.id AND
-  shift.classromm = classroom.id AND
+  shift.classroom = classroom.id AND
   shift.gate = gate.id AND
-  parent.id = $parentId;
+  parent.id = '$parentId';
 """
     val departureParser = Macro.namedParser[Departure]
     val departures = db.withConnection { implicit c =>

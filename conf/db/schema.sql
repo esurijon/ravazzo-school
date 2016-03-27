@@ -5,11 +5,11 @@ CREATE SCHEMA school;
 CREATE TABLE school.staff
 (
   id varchar(15) NOT NULL,
-  first_name varchar(50) NOT NULL,
-  last_name varchar(50) NOT NULL,
-  nick_name varchar(50) NOT NULL,
-  birth_date date NOT NULL,
-  picture_uri varchar(500),
+  firstName varchar(50) NOT NULL,
+  lastName varchar(50) NOT NULL,
+  nickName varchar(50) NOT NULL,
+  birthDate date NOT NULL,
+  pictureUri varchar(500),
   email varchar(100),
   password varchar(100) NOT NULL,
   cellPhoneNumber varchar(50),
@@ -54,11 +54,11 @@ COMMENT ON COLUMN school.classroom.dispatcher
 CREATE TABLE school.children
 (
   id varchar(15) NOT NULL,
-  first_name varchar(50) NOT NULL,
-  last_name varchar(50) NOT NULL,
-  nick_name varchar(50) NOT NULL,
-  birth_date date NOT NULL,
-  picture_uri varchar(500),
+  firstName varchar(50) NOT NULL,
+  lastName varchar(50) NOT NULL,
+  nickName varchar(50) NOT NULL,
+  birthDate date NOT NULL,
+  pictureUri varchar(500),
   classroom varchar(15),
   CONSTRAINT children_id_pk PRIMARY KEY (id),
   CONSTRAINT children_classroom_fk FOREIGN KEY (classroom)
@@ -71,11 +71,11 @@ COMMENT ON TABLE school.children
 CREATE TABLE school.parent
 (
   id varchar(15) NOT NULL,
-  first_name varchar(50) NOT NULL,
-  last_name varchar(50) NOT NULL,
-  nick_name varchar(50) NOT NULL,
-  birth_date date NOT NULL,
-  picture_uri varchar(500),
+  firstName varchar(50) NOT NULL,
+  lastName varchar(50) NOT NULL,
+  nickName varchar(50) NOT NULL,
+  birthDate date NOT NULL,
+  pictureUri varchar(500),
   email varchar(100) NOT NULL,
   password varchar(100) NOT NULL,
   cellPhoneNumber varchar(50),
@@ -92,7 +92,7 @@ CREATE TABLE school.permanent_authorization
   schedule varchar(50),
   CONSTRAINT permanent_authorization_parent_children_pk PRIMARY KEY (parent, children)
 );
-CREATE UNIQUE INDEX permanent_authorization_parent_idx ON school.permanent_authorization (parent);
+CREATE INDEX permanent_authorization_parent_idx ON school.permanent_authorization (parent);
 COMMENT ON TABLE school.permanent_authorization
   IS 'Defines a relationship between a child and a parent who can pick him from school in a permanent way';
 
@@ -103,17 +103,17 @@ CREATE TABLE school.temporary_authorization
   valid_date date NOT NULL,
   CONSTRAINT temporary_authorization_parent_children_pk PRIMARY KEY (parent, children)
 );
-CREATE UNIQUE INDEX temporary_authorization_parent_idx ON school.temporary_authorization (parent);
+CREATE INDEX temporary_authorization_parent_idx ON school.temporary_authorization (parent);
 COMMENT ON TABLE school.temporary_authorization
   IS 'Defines a relationship between a child and a parent who can pick him from school just for the specified date';
 
 CREATE TABLE school.shift
 (
   id varchar(15) NOT NULL,
-  classromm varchar(15) NOT NULL,
+  classroom varchar(15) NOT NULL,
   gate varchar(15) NOT NULL,
-  start_time time NOT NULL, 
-  end_time time NOT NULL,
+  startTime time NOT NULL, 
+  endTime time NOT NULL,
   CONSTRAINT shift_id_pk PRIMARY KEY (id)
 );
 COMMENT ON TABLE school.shift
@@ -121,19 +121,19 @@ COMMENT ON TABLE school.shift
 
   
 CREATE OR REPLACE VIEW "school"."user" AS 
- SELECT id, first_name, last_name, nick_name, 'PARENT'::text AS role
+ SELECT id, firstName, lastName, nickName, 'PARENT'::text AS role
  FROM school.parent
 UNION ALL
- SELECT id, first_name, last_name, nick_name, 'STAFF'::text AS role
+ SELECT id, firstName, lastName, nickName, 'STAFF'::text AS role
  FROM school.staff;
 COMMENT ON VIEW "school"."user"
   IS 'A user refers to any person who plays a role in egress procedure, that is a parent or staff person';
 
 CREATE OR REPLACE VIEW school.person AS 
- SELECT id, first_name, last_name, nick_name, 'CHILD'::text AS role
+ SELECT id, firstName, lastName, nickName, 'CHILD'::text AS role
  FROM school.children
 UNION ALL
- SELECT id, first_name, last_name, nick_name, role
+ SELECT id, firstName, lastName, nickName, role
  FROM "school"."user";
 COMMENT ON VIEW school.person
   IS 'A person refers entity taht represents a human being no matter is if it plays a role in egress procedure, that is a parent or staff or children';

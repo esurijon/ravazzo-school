@@ -30,7 +30,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 #      schema:
 #        $ref: '#/definitions/model.Person'
 ###
-GET     /persons/:id           controllers.EgressManager.noop2(id)
+GET     /persons/:id           controllers.UserController.getPerson(id)
 
 ###
 #  summary: Register device 
