@@ -4,4 +4,8 @@ import play.api.libs.json.JsObject
 import com.fasterxml.jackson.annotation.JsonFormat
 import play.api.libs.json.Json
 
-case class Departure(parent: Id, gate: Id, dispatcher: Id, classroom: Id)
+case class Departure(parent: Id, child: Id, dispatcher: Id, classroom: Id, gatekeeper: Id, gate: Id)
+
+object Departure {
+  implicit val departureFormat = Json.format[Departure]
+}

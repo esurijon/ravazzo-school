@@ -2,31 +2,54 @@ DROP SCHEMA IF EXISTS school;
 
 CREATE SCHEMA school;
 
+CREATE TABLE school.staff
+(
+  id varchar(15) NOT NULL,
+  first_name varchar(50) NOT NULL,
+  last_name varchar(50) NOT NULL,
+  nick_name varchar(50) NOT NULL,
+  birth_date date NOT NULL,
+  picture_uri varchar(500),
+  email varchar(100),
+  password varchar(100) NOT NULL,
+  cellPhoneNumber varchar(50),
+  CONSTRAINT staff_id_pk PRIMARY KEY (id),
+  CONSTRAINT staff_email_key UNIQUE (email)
+);
+COMMENT ON TABLE school.staff
+  IS 'Staff are employees of school whom plays a role in egress procedure';
+
 CREATE TABLE school.gate
 (
   id varchar(15) NOT NULL,
   label varchar(50) NOT NULL,
   address varchar(100) NOT NULL,
   coords varchar(100),
-  assigned_staff varchar(50) NOT NULL,
-  CONSTRAINT gate_id_pk PRIMARY KEY (id)
+  gatekeeper varchar(15) NOT NULL,
+  CONSTRAINT gate_id_pk PRIMARY KEY (id),
+  CONSTRAINT gate_gatekeeper_fk FOREIGN KEY (gatekeeper)
+      REFERENCES school.staff (id) 
+      ON UPDATE CASCADE ON DELETE RESTRICT
 );
 COMMENT ON TABLE school.gate
   IS 'A gate through which children leave school';
-COMMENT ON COLUMN school.gate.assigned_staff
-  IS 'Staff peson who is in charge of supervise children departure thru this gate. Gatekeeper role';
+COMMENT ON COLUMN school.gate.gatekeeper
+  IS 'Staff peson who is in charge of supervise children departure thru this gate';
   
 CREATE TABLE school.classroom
 (
   id varchar(15) NOT NULL,
   name varchar(50) NOT NULL,
-  assigned_staff varchar(50) NOT NULL,
-  CONSTRAINT classroom_id_pk PRIMARY KEY (id)
+  dispatcher varchar(15) NOT NULL,
+  CONSTRAINT classroom_id_pk PRIMARY KEY (id),
+  CONSTRAINT classroom_dispatcher_fk FOREIGN KEY (dispatcher)
+      REFERENCES school.staff (id) 
+      ON UPDATE CASCADE ON DELETE RESTRICT
 );
 COMMENT ON TABLE school.classroom
   IS 'The room to which children belong and the responsible staff person of it';
-COMMENT ON COLUMN school.classroom.assigned_staff
-  IS 'Staff peson who is in charge of dispatch out children of this classroom. Dispatcher role';
+COMMENT ON COLUMN school.classroom.dispatcher
+  IS 'Staff peson who is in charge of dispatch out children of this classroom.';
 
 CREATE TABLE school.children
 (
@@ -62,23 +85,6 @@ CREATE TABLE school.parent
 COMMENT ON TABLE school.parent
   IS 'The term parent refers to a parent itslef or any other adult person who is in charge of pickup children from school as aunts, grand maothers etc';
 
-CREATE TABLE school.staff
-(
-  id varchar(15) NOT NULL,
-  first_name varchar(50) NOT NULL,
-  last_name varchar(50) NOT NULL,
-  nick_name varchar(50) NOT NULL,
-  birth_date date NOT NULL,
-  picture_uri varchar(500),
-  email varchar(100),
-  password varchar(100) NOT NULL,
-  cellPhoneNumber varchar(50),
-  CONSTRAINT staff_id_pk PRIMARY KEY (id),
-  CONSTRAINT staff_email_key UNIQUE (email)
-);
-COMMENT ON TABLE school.staff
-  IS 'Staff are employees of school whom plays a role in egress procedure';
-
 CREATE TABLE school.permanent_authorization
 (
   parent varchar(15) NOT NULL,
@@ -101,14 +107,14 @@ CREATE UNIQUE INDEX temporary_authorization_parent_idx ON school.temporary_autho
 COMMENT ON TABLE school.temporary_authorization
   IS 'Defines a relationship between a child and a parent who can pick him from school just for the specified date';
 
-CREATE TABLE school.turn
+CREATE TABLE school.shift
 (
   id varchar(15) NOT NULL,
   classromm varchar(15) NOT NULL,
   gate varchar(15) NOT NULL,
   start_time time NOT NULL, 
   end_time time NOT NULL,
-  CONSTRAINT turn_id_pk PRIMARY KEY (id)
+  CONSTRAINT shift_id_pk PRIMARY KEY (id)
 );
 COMMENT ON TABLE school.turn
   IS 'Defines through which gate and at which time, children of a classroom must leave school';

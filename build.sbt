@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(
   jdbc,
   "com.h2database" % "h2" % "1.4.191",
   "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
-  "com.typesafe.play" %% "anorm" % "2.4.0"
+  "com.typesafe.play" %% "anorm" % "2.5.0"
 )
 
 // Swagger deps

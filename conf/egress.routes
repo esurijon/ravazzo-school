@@ -15,7 +15,7 @@
 #        items: 
 #          $ref: '#/definitions/model.Departure'
 ###
-GET     /assigned-children           controllers.EgressManager.noop()
+GET     /assigned-children           controllers.EgressManager.getAssignedChildren()
 
 ###
 #  summary: Request a child to come out
