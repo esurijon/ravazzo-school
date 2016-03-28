@@ -39,7 +39,7 @@ class CustomErrorHandler @Inject() (
   }
 
   override protected def onProdServerError(request: RequestHeader, exception: UsefulException): Future[Result] = onDevServerError(request, exception)
- 
+
   override protected def onDevServerError(request: RequestHeader, exception: UsefulException): Future[Result] = {
     if (isJsonResponseExpected(request)) {
 
@@ -50,7 +50,12 @@ class CustomErrorHandler @Inject() (
           "cause" -> Option(e.getCause))
       }
 
-      Future.successful(Status(500)(Json.toJson(exception)))
+      val body = Json.obj(
+        "request" -> (request.method + " " + request.uri),
+        "title" -> exception.title,
+        "exception" -> exception)
+
+      Future.successful(Status(500)(body))
 
     } else {
       super.onDevServerError(request, exception)
