@@ -35,5 +35,6 @@ WHERE
       SQL(personByIdQuery).as(personParser.single)
     }
     Ok(Json.toJson(person))
+    
   }
 }
