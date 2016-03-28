@@ -38,6 +38,8 @@ class CustomErrorHandler @Inject() (
     }
   }
 
+  override protected def onProdServerError(request: RequestHeader, exception: UsefulException): Future[Result] = onDevServerError(request, exception)
+ 
   override protected def onDevServerError(request: RequestHeader, exception: UsefulException): Future[Result] = {
     if (isJsonResponseExpected(request)) {
 
