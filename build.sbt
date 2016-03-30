@@ -10,9 +10,7 @@ scalaVersion := "2.11.6"
 libraryDependencies ++= Seq(
   cache,
   ws,
-  "org.webjars" % "swagger-ui" % "2.1.8-M1",
-  "com.iheart" %% "play-swagger" % "0.2.0",
-  specs2 % Test
+  "joda-time" % "joda-time" % "2.9.3"
 )
 
 // SQL deps

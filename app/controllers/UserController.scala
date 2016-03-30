@@ -1,40 +1,75 @@
 package controllers
 
-import anorm.SqlParser._
-import com.google.inject.ImplementedBy
-import anorm._
+import anorm.Macro
+import anorm.SQL
+import anorm.sqlToSimple
 import javax.inject.Inject
+import model.Alumno
 import model.Id
-import play.api.cache.CacheApi
+import model.LoginRequest
+import model.Responsable
 import play.api.db.Database
-import play.api.libs.json.JsError
+import play.api.libs.json.Json
 import play.api.mvc.Action
-import play.api.mvc.BodyParsers
 import play.api.mvc.Controller
 import play.db.NamedDatabase
-import push.GcmPushService
-import push.PushService
-import play.api.libs.json.Json
-import model.Departure
-import model.Person
 
 class UserController @Inject() (@NamedDatabase("default") db: Database) extends Controller {
 
-  def getPerson(personId: Id) = Action {
+  private val responsableParser = Macro.indexedParser[Responsable]
+  private val alumnoParser = Macro.indexedParser[Alumno]
 
-    val personByIdQuery = s"""
+  def login(loginRequest: LoginRequest) = Action {
+
+    val ofuscatedPassword = loginRequest.password
+    val loguinQuery = s"""
 SELECT 
-  id, firstName, lastName, nickName, role
+	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente
 FROM 
-  school.person
+  aulatec.responsable
 WHERE 
-  id = '$personId';
+  email = '${loginRequest.email}' AND
+  password = '$ofuscatedPassword' AND
+  es_docente = ${loginRequest.asTeacher};
 """
-    val personParser = Macro.namedParser[Person] 
-    val person = db.withConnection { implicit c =>
-      SQL(personByIdQuery).as(personParser.single)
+    val responsable = db.withConnection { implicit c =>
+      SQL(loguinQuery).as(alumnoParser.single)
     }
-    Ok(Json.toJson(person))
-    
+    Ok(Json.toJson(responsable))
+
+  }
+
+  def getResponsable(respId: Id) = Action {
+
+    val responsableByIdQuery = s"""
+SELECT 
+	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente
+FROM 
+  aulatec.responsable
+WHERE 
+  id = $respId;
+"""
+    val responsable = db.withConnection { implicit c =>
+      SQL(responsableByIdQuery).as(alumnoParser.single)
+    }
+    Ok(Json.toJson(responsable))
+
+  }
+
+  def getStudent(alumnoId: Id) = Action {
+
+    val alumnoByIdQuery = s"""
+SELECT 
+	id, cole, familia, nombre, apellido, aula, pais,
+FROM 
+  aulatec.alumno
+WHERE 
+  id = $alumnoId;
+"""
+    val alumno = db.withConnection { implicit c =>
+      SQL(alumnoByIdQuery).as(alumnoParser.single)
+    }
+    Ok(Json.toJson(alumno))
+
   }
 }

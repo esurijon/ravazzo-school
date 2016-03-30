@@ -1,140 +1,142 @@
-DROP SCHEMA IF EXISTS school;
+DROP SCHEMA IF EXISTS aulatec;
 
-CREATE SCHEMA school;
+CREATE SCHEMA aulatec; 
 
-CREATE TABLE school.staff
-(
-  id varchar(15) NOT NULL,
-  firstName varchar(50) NOT NULL,
-  lastName varchar(50) NOT NULL,
-  nickName varchar(50) NOT NULL,
-  birthDate date NOT NULL,
-  pictureUri varchar(500),
-  email varchar(100),
-  password varchar(100) NOT NULL,
-  cellPhoneNumber varchar(50),
-  CONSTRAINT staff_id_pk PRIMARY KEY (id),
-  CONSTRAINT staff_email_key UNIQUE (email)
+CREATE TABLE aulatec.custom_cole(
+	id serial,
+	cus_puerta boolean, 
+	cus_turno boolean, 
+	cus_aula boolean, 
+	cus_padre_mas boolean, 
+	cus_padre_ind boolean, 
+	cus_docente boolean, 
+	cus_evento boolean, 
+	cus_factu boolean,
+	CONSTRAINT custom_cole_pk PRIMARY KEY (id)
 );
-COMMENT ON TABLE school.staff
-  IS 'Staff are employees of school whom plays a role in egress procedure';
+COMMENT ON TABLE aulatec.custom_cole
+  IS 'Opciones customizables habilitadas para cada colegio - nueva sección será un nuevo campo';
 
-CREATE TABLE school.gate
-(
-  id varchar(15) NOT NULL,
-  label varchar(50) NOT NULL,
-  address varchar(100) NOT NULL,
-  coords varchar(100),
-  gatekeeper varchar(15) NOT NULL,
-  CONSTRAINT gate_id_pk PRIMARY KEY (id),
-  CONSTRAINT gate_gatekeeper_fk FOREIGN KEY (gatekeeper)
-      REFERENCES school.staff (id) 
-      ON UPDATE CASCADE ON DELETE RESTRICT
+CREATE TABLE aulatec.colegio(
+	id serial,
+	nombre varchar(80) NOT NULL,
+	logo varchar(80),
+	pais char(2) NOT NULL,
+	CONSTRAINT colegio_id_pk PRIMARY KEY (id)
 );
-COMMENT ON TABLE school.gate
-  IS 'A gate through which children leave school';
-COMMENT ON COLUMN school.gate.gatekeeper
-  IS 'Staff peson who is in charge of supervise children departure thru this gate';
-  
-CREATE TABLE school.classroom
-(
-  id varchar(15) NOT NULL,
-  name varchar(50) NOT NULL,
-  dispatcher varchar(15) NOT NULL,
-  CONSTRAINT classroom_id_pk PRIMARY KEY (id),
-  CONSTRAINT classroom_dispatcher_fk FOREIGN KEY (dispatcher)
-      REFERENCES school.staff (id) 
-      ON UPDATE CASCADE ON DELETE RESTRICT
-);
-COMMENT ON TABLE school.classroom
-  IS 'The room to which children belong and the responsible staff person of it';
-COMMENT ON COLUMN school.classroom.dispatcher
-  IS 'Staff peson who is in charge of dispatch out children of this classroom.';
+COMMENT ON TABLE aulatec.colegio
+  IS 'Tabla maestra de colegios con su nombre, logo y pais';
 
-CREATE TABLE school.children
-(
-  id varchar(15) NOT NULL,
-  firstName varchar(50) NOT NULL,
-  lastName varchar(50) NOT NULL,
-  nickName varchar(50) NOT NULL,
-  birthDate date NOT NULL,
-  pictureUri varchar(500),
-  classroom varchar(15),
-  CONSTRAINT children_id_pk PRIMARY KEY (id),
-  CONSTRAINT children_classroom_fk FOREIGN KEY (classroom)
-      REFERENCES school.classroom (id) 
-      ON UPDATE CASCADE ON DELETE RESTRICT
+CREATE TABLE aulatec.turno(
+	id serial,
+	cole integer,
+	texto varchar(40) NOT NULL,
+	hora_inicio time NOT NULL,
+	hora_fin time NOT NULL,
+	CONSTRAINT turnos_id_pk PRIMARY KEY (id),
+	CONSTRAINT turnos_colegio_fk FOREIGN KEY (cole) 
+		REFERENCES aulatec.colegio (id)
 );
-COMMENT ON TABLE school.children
-  IS 'Children are students of school and they belong to classroom';
-  
-CREATE TABLE school.parent
-(
-  id varchar(15) NOT NULL,
-  firstName varchar(50) NOT NULL,
-  lastName varchar(50) NOT NULL,
-  nickName varchar(50) NOT NULL,
-  birthDate date NOT NULL,
-  pictureUri varchar(500),
-  email varchar(100) NOT NULL,
-  password varchar(100) NOT NULL,
-  cellPhoneNumber varchar(50),
-  CONSTRAINT parent_id_pk PRIMARY KEY (id),
-  CONSTRAINT parent_email_key UNIQUE (email)
+COMMENT ON TABLE aulatec.turno
+  IS 'Tabla maestra de turnos por colegio - no admite solapamiento horario para un mismo colegio';
+
+
+CREATE TABLE aulatec.puerta(
+	id serial,
+	cole integer,
+	texto varchar(40) NOT NULL,
+	CONSTRAINT puerta_id_pk PRIMARY KEY (id),
+	CONSTRAINT puerta_cole_fk FOREIGN KEY (cole) 
+		REFERENCES aulatec.colegio (id)
 );
-COMMENT ON TABLE school.parent
-  IS 'The term parent refers to a parent itslef or any other adult person who is in charge of pickup children from school as aunts, grand maothers etc';
+COMMENT ON TABLE aulatec.turno
+  IS 'Tabla maestra de puertas por colegio';
 
-CREATE TABLE school.permanent_authorization
-(
-  parent varchar(15) NOT NULL,
-  children varchar(15) NOT NULL,
-  schedule varchar(50),
-  CONSTRAINT permanent_authorization_parent_children_pk PRIMARY KEY (parent, children)
+CREATE TABLE aulatec.aula(
+	id serial,
+	cole integer,
+	txt1 varchar(40) NOT NULL,
+	txt2 varchar (80),
+	turno integer,
+	puerta integer,
+	CONSTRAINT aula_id_pk PRIMARY KEY (id),
+	CONSTRAINT aula_puerta_aula_uk UNIQUE (puerta),
+	CONSTRAINT aula_cole_fk FOREIGN KEY (cole) 
+		REFERENCES aulatec.colegio (id),
+	CONSTRAINT aula_turno_fk FOREIGN KEY (turno) 
+		REFERENCES aulatec.turno (id),
+	CONSTRAINT aula_puerta_fk FOREIGN KEY (puerta)
+		REFERENCES aulatec.puerta (id)
 );
-CREATE INDEX permanent_authorization_parent_idx ON school.permanent_authorization (parent);
-COMMENT ON TABLE school.permanent_authorization
-  IS 'Defines a relationship between a child and a parent who can pick him from school in a permanent way';
+COMMENT ON TABLE aulatec.turno
+  IS 'Tabla maestra de puertas por colegio';
 
-CREATE TABLE school.temporary_authorization
-(
-  parent varchar(15) NOT NULL,
-  children varchar(15) NOT NULL,
-  valid_date date NOT NULL,
-  CONSTRAINT temporary_authorization_parent_children_pk PRIMARY KEY (parent, children)
+CREATE TABLE aulatec.responsable(
+	id serial,
+	familia integer UNIQUE,
+	nombre varchar(40) NOT NULL,
+	apellido varchar(40) NOT NULL,
+	dni integer NOT NULL UNIQUE,
+	celular varchar(20) NOT NULL UNIQUE,
+	email varchar(80) NOT NULL UNIQUE,
+	password varchar(80) NOT NULL UNIQUE,
+	pais char(2) NOT NULL,
+	es_docente boolean,
+	CONSTRAINT responsable_id_pk PRIMARY KEY (id)
 );
-CREATE INDEX temporary_authorization_parent_idx ON school.temporary_authorization (parent);
-COMMENT ON TABLE school.temporary_authorization
-  IS 'Defines a relationship between a child and a parent who can pick him from school just for the specified date';
+COMMENT ON TABLE aulatec.responsable
+  IS 'Tabla de Responsables (Padres, Autorizados, Docentes)';
 
-CREATE TABLE school.shift
-(
-  id varchar(15) NOT NULL,
-  classroom varchar(15) NOT NULL,
-  gate varchar(15) NOT NULL,
-  startTime time NOT NULL, 
-  endTime time NOT NULL,
-  CONSTRAINT shift_id_pk PRIMARY KEY (id)
+
+CREATE TABLE aulatec.alumno(
+	id serial,
+	cole integer,
+	familia integer,
+	nombre varchar(40) NOT NULL,
+	apellido varchar(40) NOT NULL,
+	aula  integer,
+	pais char(2) NOT NULL,
+	CONSTRAINT alumno_id_pk PRIMARY KEY (id),
+	CONSTRAINT alumno_cole_fk FOREIGN KEY (cole) 
+		REFERENCES aulatec.colegio (id),
+	CONSTRAINT alumno_familia_fk FOREIGN KEY (familia) 
+		REFERENCES aulatec.responsable (id),
+	CONSTRAINT aula_aula_fk FOREIGN KEY (aula)
+		REFERENCES aulatec.aula (id)
 );
-COMMENT ON TABLE school.shift
-  IS 'Defines through which gate and at which time, children of a classroom must leave school';
+COMMENT ON TABLE aulatec.alumno
+  IS 'Tabla maestra de Alumnos';
 
-  
-CREATE OR REPLACE VIEW "school"."user" AS 
- SELECT id, firstName, lastName, nickName, 'PARENT'::text AS role
- FROM school.parent
-UNION ALL
- SELECT id, firstName, lastName, nickName, 'STAFF'::text AS role
- FROM school.staff;
-COMMENT ON VIEW "school"."user"
-  IS 'A user refers to any person who plays a role in egress procedure, that is a parent or staff person';
 
-CREATE OR REPLACE VIEW school.person AS 
- SELECT id, firstName, lastName, nickName, 'CHILD'::text AS role
- FROM school.children
-UNION ALL
- SELECT id, firstName, lastName, nickName, role
- FROM "school"."user";
-COMMENT ON VIEW school.person
-  IS 'A person refers entity taht represents a human being no matter is if it plays a role in egress procedure, that is a parent or staff or children';
-  
+CREATE TABLE aulatec.ColeResp(
+	cole integer,
+	resp integer,
+	esTitular boolean,
+	CONSTRAINT ColeResp_cole_res_pk PRIMARY KEY (cole, resp),
+	CONSTRAINT ColeResp_cole_fk FOREIGN KEY (cole) 
+		REFERENCES aulatec.colegio (id),
+	CONSTRAINT ColeResp_resp_fk FOREIGN KEY (resp) 
+		REFERENCES aulatec.responsable (id)
+);
+COMMENT ON TABLE aulatec.ColeResp
+  IS 'Tabla que relaciona a cada responsable con los colegios en los que puede operar y bajo que Rol (Titular, Autorizado o Docente)';
+
+CREATE TABLE aulatec.FamAluResp(
+	familia integer,
+	alumno  integer,
+	aula  integer,
+	resp  integer,
+	valido_desde date,
+	valido_hasta date,
+	CONSTRAINT FamAluResp_familia_alumno_pk PRIMARY KEY (familia, alumno),
+	CONSTRAINT FamAluResp_familia_fk FOREIGN KEY (familia) 
+		REFERENCES aulatec.responsable (familia),
+	CONSTRAINT FamAluResp_alumno_fk FOREIGN KEY (alumno) 
+		REFERENCES aulatec.alumno (id),
+	CONSTRAINT FamAluResp_aula_fk FOREIGN KEY (aula)
+		REFERENCES aulatec.aula (id),
+	CONSTRAINT FamAluResp_rep_fk FOREIGN KEY (resp) 
+		REFERENCES aulatec.responsable (id)
+);
+COMMENT ON TABLE aulatec.FamAluResp
+  IS 'Tabla que administra los autorizados a retirar que no son Titulares (padre o madre)';

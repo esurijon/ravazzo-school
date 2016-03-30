@@ -1,5 +1,5 @@
 
 
 package object model {
-  type Id = String
+  type Id = Int
 }
