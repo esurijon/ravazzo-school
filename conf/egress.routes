@@ -15,7 +15,26 @@
 #        items: 
 #          $ref: '#/definitions/model.Departure'
 ###
-GET     /assigned-children           controllers.EgressManager.getAssignedChildren()
+GET     /assigned-students           controllers.EgressManagerController.getAssignedStudents()
+
+###
+#  summary: Retrieve assigned children to pickup 
+#  description: Retrieve assigned children to pickup by the authenticated parent for the current egress turn. 
+#  parameters:
+#    - name: Session
+#      in: header
+#      description: Session information of logged in parent
+#      required: true,
+#      type: string
+#  responses:
+#    200:
+#      description: List of departure entries
+#      schema: 
+#        type: array
+#        items: 
+#          $ref: '#/definitions/model.Departure'
+###
+GET     /departure-requests?status=undispatched	           controllers.EgressManagerController.getAssignedStudents()
 
 ###
 #  summary: Request a child to come out
@@ -51,7 +70,7 @@ GET     /assigned-children           controllers.EgressManager.getAssignedChildr
 #      schema:
 #        $ref: '#/definitions/model.Departure'
 ###
-POST     /departure-request           controllers.EgressManager.noop()
+POST     /departure-requests           controllers.EgressManagerController.departureRequest()
 
 ###
 #  summary: Notify child has departed
@@ -83,7 +102,7 @@ POST     /departure-request           controllers.EgressManager.noop()
 #      schema:
 #        $ref: '#/definitions/model.Departure'
 ###
-POST     /departure-notification      controllers.EgressManager.noop()
+POST     /departure-notifications      controllers.EgressManagerController.departureNotification()
 
 ###
 #  summary: pause/resume departure
@@ -115,4 +134,4 @@ POST     /departure-notification      controllers.EgressManager.noop()
 #      schema:
 #        type: string
 ###
-PUT     /status					      controllers.EgressManager.noop()
+PUT     /status					      controllers.EgressManagerController.setEgressStatus()

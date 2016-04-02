@@ -14,5 +14,5 @@ case class Responsable(
   esDocente: Boolean)
 
 object Responsable {
-  implicit val responsableWrites = Json.writes[Responsable]
+  implicit val responsableFormat = Json.format[Responsable]
 }

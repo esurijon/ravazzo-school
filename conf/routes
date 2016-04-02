@@ -14,8 +14,32 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 -> /docs 			swagger.Routes
 
 ###
-#  summary: Retrieve person info 
-#  description: Retrieve children, staff or parent basic info only if authenticated user has access to it 
+#  summary: Login registered user 
+#  description: Creates a new session for a registered user and retrives user information
+#  tags: 
+#   - user
+#  parameters:
+#    - name: body
+#      in: body
+#      description: login request
+#      required: true,
+#      schema:
+#        $ref: '#/definitions/model.LoginRequest'
+#  responses:
+#    200:
+#      description: User info
+#      headers:
+#        -Session:
+#         description: session information
+#         type: string
+#      schema:
+#        $ref: '#/definitions/model.Responsable'
+###
+POST     /login           controllers.UserController.login()
+
+###
+#  summary: Retrieve student info 
+#  description: Retrieve student basic info only if authenticated user has access to it 
 #  tags: 
 #   - user
 #  parameters:
@@ -24,47 +48,39 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 #      description: Session information of logged user
 #      required: true,
 #      type: string
+#    - name: id alumno
+#      in: path
+#      description: Id of student
+#      required: true,
+#      type: int
 #  responses:
 #    200:
 #      description: Person basic info
 #      schema:
-#        $ref: '#/definitions/model.Person'
+#        $ref: '#/definitions/model.Alumno'
 ###
-GET     /persons/:id           controllers.UserController.getPerson(id)
+GET     /students/:id           controllers.UserController.getStudent(id: model.Id)
 
 ###
-#  summary: Register device 
-#  description: Associates device with a user account 
+#  summary: Retrieve responsable info 
+#  description: Retrieve responsable basic info only if authenticated user has access to it 
 #  tags: 
 #   - user
 #  parameters:
-#    - name: body
-#      in: body
-#      description: device and user credentials
-#      required: true,
-#      schema:
-#        $ref: '#/definitions/model.User'
-#  responses:
-#    204:
-#      description: success
-###
-POST     /device-registry           controllers.EgressManager.noop()
-
-###
-#  summary: Login registered user 
-#  description: Creates a new session for a registered user 
-#  tags: 
-#   - user
-#  parameters:
-#    - name: body
-#      in: body
-#      description: device registration id
+#    - name: Session
+#      in: header
+#      description: Session information of logged user
 #      required: true,
 #      type: string
+#    - name: id responsable
+#      in: path
+#      description: Id of responsable
+#      required: true,
+#      type: int
 #  responses:
 #    200:
-#      description: User info
+#      description: Person basic info
 #      schema:
-#        $ref: '#/definitions/model.Credentials'
+#        $ref: '#/definitions/model.Responsable'
 ###
-POST     /login           controllers.EgressManager.noop()
+GET     /responsables/:id           controllers.UserController.getResponsable(id: model.Id)

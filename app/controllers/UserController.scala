@@ -16,24 +16,15 @@ import play.db.NamedDatabase
 
 class UserController @Inject() (@NamedDatabase("default") db: Database) extends Controller {
 
-  private val responsableParser = Macro.indexedParser[Responsable]
-  private val alumnoParser = Macro.indexedParser[Alumno]
-
-  def login(loginRequest: LoginRequest) = Action {
-
+  def login() = Action(parse.json) { request =>
+    val loginRequest = request.body.validate[LoginRequest].asOpt.get
     val ofuscatedPassword = loginRequest.password
-    val loguinQuery = s"""
-SELECT 
-	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente
-FROM 
-  aulatec.responsable
-WHERE 
-  email = '${loginRequest.email}' AND
-  password = '$ofuscatedPassword' AND
-  es_docente = ${loginRequest.asTeacher};
-"""
     val responsable = db.withConnection { implicit c =>
-      SQL(loguinQuery).as(alumnoParser.single)
+      Dao.login.query
+        .on("email" -> loginRequest.email)
+        .on("password" -> ofuscatedPassword)
+        .on("asTeacher" -> loginRequest.asTeacher)
+        .as(Dao.login.parser.single)
     }
     Ok(Json.toJson(responsable))
 
@@ -41,33 +32,21 @@ WHERE
 
   def getResponsable(respId: Id) = Action {
 
-    val responsableByIdQuery = s"""
-SELECT 
-	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente
-FROM 
-  aulatec.responsable
-WHERE 
-  id = $respId;
-"""
     val responsable = db.withConnection { implicit c =>
-      SQL(responsableByIdQuery).as(alumnoParser.single)
+      Dao.responsableById.query
+        .on("respId" -> respId)
+        .as(Dao.responsableById.parser.single)
     }
     Ok(Json.toJson(responsable))
 
   }
 
-  def getStudent(alumnoId: Id) = Action {
+  def getStudent(studentId: Id) = Action {
 
-    val alumnoByIdQuery = s"""
-SELECT 
-	id, cole, familia, nombre, apellido, aula, pais,
-FROM 
-  aulatec.alumno
-WHERE 
-  id = $alumnoId;
-"""
     val alumno = db.withConnection { implicit c =>
-      SQL(alumnoByIdQuery).as(alumnoParser.single)
+      Dao.alumnoById.query
+        .on("studentId" -> studentId)
+        .as(Dao.alumnoById.parser.single)
     }
     Ok(Json.toJson(alumno))
 
