@@ -40,7 +40,6 @@ WHERE
 SELECT 
 	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente
 FROM 
-
   aulatec.responsable
 WHERE 
   email = {email} AND

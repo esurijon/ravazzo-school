@@ -108,35 +108,58 @@ COMMENT ON TABLE aulatec.alumno
   IS 'Tabla maestra de Alumnos';
 
 
-CREATE TABLE aulatec.ColeResp(
+CREATE TABLE aulatec.cole_resp(
 	cole integer,
 	resp integer,
 	esTitular boolean,
-	CONSTRAINT ColeResp_cole_res_pk PRIMARY KEY (cole, resp),
-	CONSTRAINT ColeResp_cole_fk FOREIGN KEY (cole) 
+	CONSTRAINT cole_resp_cole_resp_pk PRIMARY KEY (cole, resp),
+	CONSTRAINT cole_resp_cole_fk FOREIGN KEY (cole) 
 		REFERENCES aulatec.colegio (id),
-	CONSTRAINT ColeResp_resp_fk FOREIGN KEY (resp) 
+	CONSTRAINT cole_resp_resp_fk FOREIGN KEY (resp) 
 		REFERENCES aulatec.responsable (id)
 );
-COMMENT ON TABLE aulatec.ColeResp
+COMMENT ON TABLE aulatec.cole_resp
   IS 'Tabla que relaciona a cada responsable con los colegios en los que puede operar y bajo que Rol (Titular, Autorizado o Docente)';
 
-CREATE TABLE aulatec.FamAluResp(
+CREATE TABLE aulatec.fam_alu_resp(
 	familia integer,
 	alumno  integer,
 	aula  integer,
 	resp  integer,
 	valido_desde date,
 	valido_hasta date,
-	CONSTRAINT FamAluResp_familia_alumno_pk PRIMARY KEY (familia, alumno),
-	CONSTRAINT FamAluResp_familia_fk FOREIGN KEY (familia) 
+	CONSTRAINT fam_alu_resp_familia_alumno_pk PRIMARY KEY (familia, alumno),
+	CONSTRAINT fam_alu_resp_familia_fk FOREIGN KEY (familia) 
 		REFERENCES aulatec.responsable (familia),
-	CONSTRAINT FamAluResp_alumno_fk FOREIGN KEY (alumno) 
+	CONSTRAINT fam_alu_resp_alumno_fk FOREIGN KEY (alumno) 
 		REFERENCES aulatec.alumno (id),
-	CONSTRAINT FamAluResp_aula_fk FOREIGN KEY (aula)
+	CONSTRAINT fam_alu_resp_aula_fk FOREIGN KEY (aula)
 		REFERENCES aulatec.aula (id),
-	CONSTRAINT FamAluResp_rep_fk FOREIGN KEY (resp) 
+	CONSTRAINT fam_alu_resp_resp_fk FOREIGN KEY (resp) 
 		REFERENCES aulatec.responsable (id)
 );
-COMMENT ON TABLE aulatec.FamAluResp
+COMMENT ON TABLE aulatec.fam_alu_resp
   IS 'Tabla que administra los autorizados a retirar que no son Titulares (padre o madre)';
+  
+CREATE TABLE aulatec.log_alumnos_retira(
+alumno  integer NOT NULL,
+fecha_retiro date NOT NULL,
+hora_retiro time NOT NULL,
+checkout boolean,
+resp integer NOT NULL,
+cole integer NOT NULL,
+aula integer NOT NULL,
+turno integer NOT NULL,
+	CONSTRAINT log_alumnos_retira_alumno_fecha_retiro_pk PRIMARY KEY (alumno, fecha_retiro),
+	CONSTRAINT log_alumnos_retira_resp_fk FOREIGN KEY (resp) 
+		REFERENCES aulatec.responsable (id),
+	CONSTRAINT log_alumnos_retira_cole_fk FOREIGN KEY (cole) 
+		REFERENCES aulatec.colegio (id),
+	CONSTRAINT log_alumnos_retira_aula_fk FOREIGN KEY (aula) 
+		REFERENCES aulatec.aula (id),
+	CONSTRAINT log_alumnos_retira_turno_fk FOREIGN KEY (turno) 
+		REFERENCES aulatec.turno (id)
+);
+COMMENT ON TABLE aulatec.log_alumnos_retira
+  IS 'Tabla de Log para el retiro de alumnos con responsable y fecha';
+  
