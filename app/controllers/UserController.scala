@@ -38,24 +38,32 @@ class UserController @Inject() (@NamedDatabase("default") db: Database) extends 
 
   }
 
-  def getResponsable(respId: Id) = AuthenticatedResp { _ =>
-    val responsable = db.withConnection { implicit c =>
+  def getResponsable(respId: Id) = AuthenticatedResp { request =>
+    val responsableOpt = db.withConnection { implicit c =>
       Dao.responsableById.query
         .on("respId" -> respId)
-        .as(Dao.responsableById.parser.single)
+        .as(Dao.responsableById.parser.singleOpt)
     }
-    Ok(Json.toJson(responsable))
+    responsableOpt.fold {
+      NotFound(request.toString())
+    } {
+      responsable => Ok(Json.toJson(responsable))
+    }
 
   }
 
-  def getStudent(studentId: Id) = Action {
+  def getStudent(studentId: Id) = AuthenticatedResp { request =>
 
-    val alumno = db.withConnection { implicit c =>
+    val studentOpt = db.withConnection { implicit c =>
       Dao.alumnoById.query
         .on("studentId" -> studentId)
-        .as(Dao.alumnoById.parser.single)
+        .as(Dao.alumnoById.parser.singleOpt)
     }
-    Ok(Json.toJson(alumno))
+    studentOpt.fold {
+      NotFound(request.toString())
+    } {
+      student => Ok(Json.toJson(student))
+    }
 
   }
 }
