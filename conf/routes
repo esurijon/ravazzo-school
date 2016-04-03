@@ -48,11 +48,6 @@ POST     /login           controllers.UserController.login()
 #      description: Session information of logged user
 #      required: true,
 #      type: string
-#    - name: id alumno
-#      in: path
-#      description: Id of student
-#      required: true,
-#      type: int
 #  responses:
 #    200:
 #      description: Person basic info
@@ -72,11 +67,6 @@ GET     /students/:id           controllers.UserController.getStudent(id: model.
 #      description: Session information of logged user
 #      required: true,
 #      type: string
-#    - name: id responsable
-#      in: path
-#      description: Id of responsable
-#      required: true,
-#      type: int
 #  responses:
 #    200:
 #      description: Person basic info
