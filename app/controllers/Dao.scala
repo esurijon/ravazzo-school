@@ -20,7 +20,7 @@ object Dao {
 
   private val alumnoByIdQuery = SQL(s"""
 SELECT 
-	id, cole, familia, nombre, apellido, aula, pais,
+  id, cole, familia, nombre, apellido, aula, pais
 FROM 
   aulatec.alumno
 WHERE 
