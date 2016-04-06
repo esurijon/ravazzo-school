@@ -11,6 +11,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.Controller
 import play.db.NamedDatabase
+import anorm.SQL
 
 class UserController @Inject() (@NamedDatabase("default") db: Database) extends Controller {
 
@@ -19,21 +20,27 @@ class UserController @Inject() (@NamedDatabase("default") db: Database) extends 
       BadRequest(JsError.toJson(error))
     }, loginRequest => {
       val ofuscatedPassword = loginRequest.password
-      val responsableOpt = db.withConnection { implicit c =>
-        Dao.login.query
+      db.withConnection { implicit c =>
+
+        Dao.login._1
+          .on("deviceType" -> loginRequest.deviceType)
+          .on("deviceRegId" -> loginRequest.deviceRegId)
           .on("email" -> loginRequest.email)
           .on("ofuscatedPassword" -> ofuscatedPassword)
-          .on("asTeacher" -> loginRequest.asTeacher)
-          .as(Dao.login.parser.singleOpt)
-      }
-      responsableOpt.fold {
-        Unauthorized("Invalid email/password")
-      } {
-        responsable =>
-          Ok(Json.toJson(responsable))
-            .withSession("responsable" -> Json.toJson(responsable).toString())
-      }
+          .executeUpdate()
 
+        val responsableOpt = Dao.login._2
+          .on("email" -> loginRequest.email)
+          .on("ofuscatedPassword" -> ofuscatedPassword)
+          .as(Dao.login._3.singleOpt)
+        responsableOpt.fold {
+          Unauthorized("Invalid email/password")
+        } {
+          responsable =>
+            Ok(Json.toJson(responsable))
+              .withSession("responsable" -> Json.toJson(responsable).toString())
+        }
+      }
     })
 
   }

@@ -29,7 +29,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 #    200:
 #      description: User info
 #      headers:
-#        -Session:
+#        -Set-Cookie:
 #         description: session information
 #         type: string
 #      schema:

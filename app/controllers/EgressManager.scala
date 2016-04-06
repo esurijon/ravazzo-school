@@ -25,32 +25,29 @@ class EgressManagerController @Inject() (cache: CacheApi, pushSevice: PushServic
 
   private val turnoParser = Macro.indexedParser[Turno]
 
-  private val departureParser = Macro.namedParser[Departure]
-
   def getAssignedStudents = AuthenticatedResp { request =>
 
     val resp = request.user
-    val currentDate = new DateTime(DateTimeZone.getDefault)
+    val currentDate = new java.util.Date(0)//new DateTime(DateTimeZone.getDefault)
 
     val departures = db.withConnection { implicit c =>
-      val result = Dao.assignedStudentsByResp.query
+      Dao.assignedStudentsByResp.query
         .on("familiaId" -> resp.familia)
         .on("respId" -> resp.id)
-        .on("currentDate" -> currentDate.toString())
-        .as(departureParser.*)
-      result
+        .on("currentDate" -> currentDate)
+        .as(Dao.assignedStudentsByResp.parser.*)
     }
     Ok(Json.toJson(departures))
   }
 
   def getAvailableShifts() = AuthenticatedResp { request =>
 
-    val currentTime = new LocalTime(DateTimeZone.getDefault)
+    val currentTime = new java.util.Date(0) //new LocalTime(DateTimeZone.getDefault)
 
     val turnos = db.withConnection { implicit c =>
       Dao.currentShift.query
         .on("schoolId" -> 22)
-        .on("currentTime" -> currentTime.toString())
+        .on("currentTime" -> currentTime)
         .as(Dao.currentShift.parser.*)
     }
     Ok(Json.toJson(turnos))

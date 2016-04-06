@@ -2,10 +2,9 @@
 #  summary: Retrieve assigned children to pickup 
 #  description: Retrieve assigned children to pickup by the authenticated parent for the current egress turn. 
 #  parameters:
-#    - name: Session
+#    - name: Cookie
 #      in: header
 #      description: Session information of logged in parent
-#      required: true,
 #      type: string
 #  responses:
 #    200:
@@ -18,13 +17,12 @@
 GET     /assigned-students           controllers.EgressManagerController.getAssignedStudents()
 
 ###
-#  summary: Retrieve assigned children to pickup 
-#  description: Retrieve assigned children to pickup by the authenticated parent for the current egress turn. 
+#  summary: Logged departures
+#  description: Retrieve all departures logged for specific shift and classroom. 
 #  parameters:
-#    - name: Session
+#    - name: Cookie
 #      in: header
 #      description: Session information of logged in parent
-#      required: true,
 #      type: string
 #  responses:
 #    200:
@@ -34,7 +32,7 @@ GET     /assigned-students           controllers.EgressManagerController.getAssi
 #        items: 
 #          $ref: '#/definitions/model.Departure'
 ###
-GET     /departure-requests?status=undispatched	           controllers.EgressManagerController.getAssignedStudents()
+GET     /departure-requests	           controllers.EgressManagerController.getAssignedStudents()
 
 ###
 #  summary: Request a child to come out
@@ -42,10 +40,9 @@ GET     /departure-requests?status=undispatched	           controllers.EgressMan
 #               Request must be made only by an authorized parent.
 #               The system will push a notification to corresponding teacher.
 #  parameters:
-#    - name: Session
+#    - name: Cookie
 #      in: header
 #      description: Session information of logged in parent
-#      required: true,
 #      type: string
 #    - name: body
 #      in: body
@@ -76,7 +73,7 @@ POST     /departure-requests           controllers.EgressManagerController.depar
 #  summary: Notify child has departed
 #  description: Dispatcher user notifies that a children has departed
 #  parameters:
-#    - name: Session
+#    - name: Cookie
 #      in: header
 #      description: Session information of logged in parent
 #      required: true,
@@ -108,7 +105,7 @@ POST     /departure-notifications      controllers.EgressManagerController.depar
 #  summary: pause/resume departure
 #  description: Issued by Gatekeeper user, notifies to dispatcher user to pause/resume children egress 
 #  parameters:
-#    - name: Session
+#    - name: Cookie
 #      in: header
 #      description: Session information of logged in parent
 #      required: true,

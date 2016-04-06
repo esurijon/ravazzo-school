@@ -11,7 +11,10 @@ case class Responsable(
   celular: String,
   email: String,
   pais: String,
-  esDocente: Boolean)
+  esDocente: Boolean,
+  deviceType: Option[String],
+  deviceRegId: Option[String]
+)
 
 object Responsable {
   implicit val responsableFormat = Json.format[Responsable]

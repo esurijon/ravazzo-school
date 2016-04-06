@@ -1,8 +1,9 @@
 package controllers
 
-import anorm.Macro
+import anorm._
 import anorm.RowParser
 import anorm.SQL
+import anorm.SqlParser._
 import anorm.SqlQuery
 import model.Alumno
 import model.Departure
@@ -16,7 +17,11 @@ object Dao {
   private val responsableParser = Macro.indexedParser[Responsable]
   private val alumnoParser = Macro.indexedParser[Alumno]
   private val shiftParser = Macro.indexedParser[Turno]
-  private val departureParser = Macro.namedParser[Departure]
+  private val parser = (str("name") ~ int("population")).map { case a => 2 }
+  private val departureParser = int("aloptumno") ~ bool("is_titular") ~ get[Option[Boolean]]("checkout") map {
+    case student ~ isTitular ~ checkoutOpt =>
+      Departure(student, isTitular, checkoutOpt.isDefined, checkoutOpt.getOrElse(false))
+  }
 
   private val alumnoByIdQuery = SQL(s"""
 SELECT 
@@ -29,22 +34,32 @@ WHERE
 
   val responsableByIdQuery = SQL(s"""
 SELECT 
-	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente
+	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente, device_type, device_reg_id
 FROM 
   aulatec.responsable
 WHERE 
-  id = {respId};
+  id = {respId}
 """)
 
   private val loguinQuery = SQL(s"""
 SELECT 
-	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente
+	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente, device_type, device_reg_id
 FROM 
   aulatec.responsable
 WHERE 
   email = {email} AND
-  password = {ofuscatedPassword} AND
-  es_docente = {asTeacher};
+  password = {ofuscatedPassword}
+""")
+
+  private val registerDevice = SQL("""
+UPDATE 
+  aulatec.responsable 
+SET 
+  device_type = {deviceType},
+  device_reg_id = {deviceRegId} 
+WHERE 
+  email = {email} AND
+  password = {ofuscatedPassword}
 """)
 
   private val currentShiftsBySchoolQuery = SQL(s"""
@@ -54,25 +69,31 @@ FROM
   aulatec.turno
 WHERE 
   cole = {schoolId} AND
-  {currentTime} BETWEEN horaInicio AND horaFin
+  time {currentTime} BETWEEN horaInicio AND horaFin
 """)
 
   private val assignedStudentsByRespQuery = {
     val ownStudentsQuery = s"""
 SELECT
-  id, true AS 'isTitular'
+  a.id AS alumno, true AS is_titular, b.checkout 
 FROM
-  aulatec.alumno
+  aulatec.alumno a LEFT OUTER JOIN aulatec.log_alumnos_retira b
+    on (
+      a.id = b.alumno AND 
+      b.fecha_retiro = {currentDate})
 WHERE
- familia =  {familiaId}
+ a.familia = {familiaId}
 """
     val authorizedStudentsQuery = s"""
 SELECT
-  id, false as 'isTitular'
+  a.alumno AS alumno, false AS is_titular, b.checkout
 FROM
-  aulatec.fam_alu_resp
+  aulatec.fam_alu_resp a LEFT OUTER JOIN aulatec.log_alumnos_retira b
+    on (
+      a.alumno = b.alumno AND 
+      b.fecha_retiro = {currentDate})
 WHERE
- resp = {respId} AND 
+ a.resp = {respId} AND 
  {currentDate} BETWEEN valido_desde AND valido_hasta
 """
 
@@ -80,20 +101,20 @@ WHERE
 SELECT 
   alumno
 FROM
-  log_alumnos_retira Alum_con_checkin  for all entries of T_ALUMNOS.AUTORIZADOS where Id_Alumno = T_ALUMNOS.AUTORIZADOS-Id_Alumno and Fecha.Retiro = sy-datum
+  aulatec.log_alumnos_retira 
+WHERE
+  Id_Alumno = T_ALUMNOS.AUTORIZADOS-Id_Alumno and Fecha.Retiro = sy-datum
 """
 
     SQL(s"""
-SELECT * 
+SELECT alumno, is_titular, checkout
 FROM 
-  ($ownStudentsQuery UNION ALL $authorizedStudentsQuery) as assigned_students 
-WHERE 
-  id NOT IN ($departedStudents)
+  ($ownStudentsQuery UNION ALL $authorizedStudentsQuery) AS assigned_students 
 """)
 
   }
 
-  val login = Dao(loguinQuery, responsableParser)
+  val login = (registerDevice, loguinQuery, responsableParser)
   val alumnoById = Dao(alumnoByIdQuery, alumnoParser)
   val responsableById = Dao(responsableByIdQuery, responsableParser)
   val currentShift = Dao(currentShiftsBySchoolQuery, shiftParser)

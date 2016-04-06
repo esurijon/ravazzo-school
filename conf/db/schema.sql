@@ -81,7 +81,9 @@ CREATE TABLE aulatec.responsable(
 	email varchar(80) NOT NULL UNIQUE,
 	password varchar(80) NOT NULL UNIQUE,
 	pais char(2) NOT NULL,
-	es_docente boolean,
+	es_docente boolean  NOT NULL DEFAULT false,
+	device_type char(8),
+	device_reg_id varchar(120),
 	CONSTRAINT responsable_id_pk PRIMARY KEY (id)
 );
 COMMENT ON TABLE aulatec.responsable
