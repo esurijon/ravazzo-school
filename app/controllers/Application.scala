@@ -13,7 +13,6 @@ import play.api.mvc.Action
 import play.api.mvc.BodyParsers
 import play.api.mvc.Controller
 import push.GcmPushService
-import push.Notification
 import push.PushMessage
 import push.PushService
 

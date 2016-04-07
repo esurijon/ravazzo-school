@@ -47,9 +47,9 @@ class UserController @Inject() (@NamedDatabase("default") db: Database) extends 
 
   def getResponsable(respId: Id) = AuthenticatedResp { request =>
     val responsableOpt = db.withConnection { implicit c =>
-      Dao.responsableById.query
+      Dao.responsableById._1
         .on("respId" -> respId)
-        .as(Dao.responsableById.parser.singleOpt)
+        .as(Dao.responsableById._2.singleOpt)
     }
     responsableOpt.fold {
       NotFound(request.toString())
@@ -62,9 +62,9 @@ class UserController @Inject() (@NamedDatabase("default") db: Database) extends 
   def getStudent(studentId: Id) = AuthenticatedResp { request =>
 
     val studentOpt = db.withConnection { implicit c =>
-      Dao.alumnoById.query
+      Dao.alumnoById._1
         .on("studentId" -> studentId)
-        .as(Dao.alumnoById.parser.singleOpt)
+        .as(Dao.alumnoById._2.singleOpt)
     }
     studentOpt.fold {
       NotFound(request.toString())

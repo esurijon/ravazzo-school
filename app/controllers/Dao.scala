@@ -10,22 +10,20 @@ import model.Departure
 import model.Responsable
 import model.Turno
 
-case class Dao[T](query: SqlQuery, parser: RowParser[T])
-
 object Dao {
 
   private val responsableParser = Macro.indexedParser[Responsable]
   private val alumnoParser = Macro.indexedParser[Alumno]
   private val shiftParser = Macro.indexedParser[Turno]
   private val parser = (str("name") ~ int("population")).map { case a => 2 }
-  private val departureParser = int("aloptumno") ~ bool("is_titular") ~ get[Option[Boolean]]("checkout") map {
+  private val departureParser = alumnoParser ~ bool("is_titular") ~ get[Option[Boolean]]("checkout") map {
     case student ~ isTitular ~ checkoutOpt =>
       Departure(student, isTitular, checkoutOpt.isDefined, checkoutOpt.getOrElse(false))
   }
 
   private val alumnoByIdQuery = SQL(s"""
 SELECT 
-  id, cole, familia, nombre, apellido, aula, pais
+  id, nombre, apellido
 FROM 
   aulatec.alumno
 WHERE 
@@ -75,39 +73,32 @@ WHERE
   private val assignedStudentsByRespQuery = {
     val ownStudentsQuery = s"""
 SELECT
-  a.id AS alumno, true AS is_titular, b.checkout 
+  a.id, a.nombre, a.apellido, true AS is_titular, b.checkout 
 FROM
   aulatec.alumno a LEFT OUTER JOIN aulatec.log_alumnos_retira b
     on (
       a.id = b.alumno AND 
       b.fecha_retiro = {currentDate})
 WHERE
- a.familia = {familiaId}
+  a.familia = {familiaId}
 """
     val authorizedStudentsQuery = s"""
 SELECT
-  a.alumno AS alumno, false AS is_titular, b.checkout
+  a.id, a.nombre, a.apellido, false AS is_titular, c.checkout
 FROM
-  aulatec.fam_alu_resp a LEFT OUTER JOIN aulatec.log_alumnos_retira b
+  aulatec.alumno a INNER JOIN 
+  aulatec.fam_alu_resp b 
+    on (a.id = b.alumno) LEFT OUTER JOIN aulatec.log_alumnos_retira c
     on (
-      a.alumno = b.alumno AND 
-      b.fecha_retiro = {currentDate})
+      b.alumno = c.alumno AND 
+      c.fecha_retiro = {currentDate})
 WHERE
- a.resp = {respId} AND 
+ b.resp = {respId} AND 
  {currentDate} BETWEEN valido_desde AND valido_hasta
 """
 
-    val departedStudents = s"""
-SELECT 
-  alumno
-FROM
-  aulatec.log_alumnos_retira 
-WHERE
-  Id_Alumno = T_ALUMNOS.AUTORIZADOS-Id_Alumno and Fecha.Retiro = sy-datum
-"""
-
     SQL(s"""
-SELECT alumno, is_titular, checkout
+SELECT id, nombre, apellido, is_titular, checkout
 FROM 
   ($ownStudentsQuery UNION ALL $authorizedStudentsQuery) AS assigned_students 
 """)
@@ -115,8 +106,8 @@ FROM
   }
 
   val login = (registerDevice, loguinQuery, responsableParser)
-  val alumnoById = Dao(alumnoByIdQuery, alumnoParser)
-  val responsableById = Dao(responsableByIdQuery, responsableParser)
-  val currentShift = Dao(currentShiftsBySchoolQuery, shiftParser)
-  val assignedStudentsByResp = Dao(assignedStudentsByRespQuery, departureParser)
+  val alumnoById = (alumnoByIdQuery, alumnoParser)
+  val responsableById = (responsableByIdQuery, responsableParser)
+  val currentShift = (currentShiftsBySchoolQuery, shiftParser)
+  val assignedStudentsByResp = (assignedStudentsByRespQuery, departureParser)
 }

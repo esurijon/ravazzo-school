@@ -1,6 +1,7 @@
 INSERT INTO aulatec.responsable (id, familia, nombre, apellido, dni, celular, email, password, pais, es_docente)
 VALUES
-(1, 1, 'Ezequiel', 'Surijon', 26348014, '11-6463-1122', 'surijon@gmail.com', 'fedeputo', 'AR', false);
+(1, 1, 'Ezequiel', 'Surijon', 26348014, '11-6463-1122', 'surijon@gmail.com', 'suri', 'AR', false),
+(2, 2, 'Federico', 'Gavuzzo', 26348018, '11-6463-1123', 'fede@gmail.com', 'fede', 'AR', false);
 
 INSERT INTO aulatec.colegio(id, nombre, pais)
 VALUES
@@ -18,6 +19,11 @@ INSERT INTO aulatec.aula(id, cole, txt1, turno, puerta)
 VALUES
 (1, 1, '2doA', 1, 1);
 
-INSERT INTO  aulatec.alumno(id, cole, familia, nombre, apellido, aula, pais)
+INSERT INTO aulatec.alumno(id, cole, familia, nombre, apellido, aula, pais)
 VALUES
-(1, 1, 1, 'Guadalupe', 'Surijon', 1, 'AR');
+(1, 1, 1, 'Guadalupe', 'Surijon', 1, 'AR'),
+(2, 1, 2, 'Tomas', 'Gavuzzo', 1, 'AR');
+
+INSERT INTO aulatec.fam_alu_resp(familia, alumno, aula, resp, valido_desde, valido_hasta)
+VALUES
+(2, 2, 1, 1, '2016-01-01', '2017-01-01');
