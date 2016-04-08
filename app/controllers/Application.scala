@@ -12,9 +12,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.BodyParsers
 import play.api.mvc.Controller
-import push.GcmPushService
-import push.PushMessage
-import push.PushService
+import com.aulatec.push.PushService
 
 class Application @Inject() (cache: CacheApi, pushSevice: PushService) extends Controller {
 

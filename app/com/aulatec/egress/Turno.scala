@@ -1,8 +1,7 @@
-package model
+package com.aulatec.egress
 
-import java.sql.Time
 import play.api.libs.json.Json
-import org.joda.time.LocalTime
+import com.aulatec.users.Id
 
 case class Turno(
   id: Id,

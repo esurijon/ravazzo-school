@@ -3,8 +3,7 @@ package controllers
 import anorm.NamedParameter.string
 import anorm.sqlToSimple
 import javax.inject.Inject
-import model.Id
-import model.LoginRequest
+import com.aulatec.users.LoginRequest
 import play.api.db.Database
 import play.api.libs.json.JsError
 import play.api.libs.json.Json
@@ -12,28 +11,20 @@ import play.api.mvc.Action
 import play.api.mvc.Controller
 import play.db.NamedDatabase
 import anorm.SQL
+import com.aulatec.users.Id
+import scala.concurrent.Future
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import com.aulatec.Dao
+import com.aulatec.users.UserService
 
-class UserController @Inject() (@NamedDatabase("default") db: Database) extends Controller {
+class UserController @Inject() (userService: UserService) extends Controller {
 
-  def login() = Action(parse.json) { request =>
+  def login() = Action.async(parse.json) { request =>
     request.body.validate[LoginRequest].fold(error => {
-      BadRequest(JsError.toJson(error))
+      Future.successful(BadRequest(JsError.toJson(error)))
     }, loginRequest => {
-      val ofuscatedPassword = loginRequest.password
-      db.withConnection { implicit c =>
-
-        Dao.login._1
-          .on("deviceType" -> loginRequest.deviceType)
-          .on("deviceRegId" -> loginRequest.deviceRegId)
-          .on("email" -> loginRequest.email)
-          .on("ofuscatedPassword" -> ofuscatedPassword)
-          .executeUpdate()
-
-        val responsableOpt = Dao.login._2
-          .on("email" -> loginRequest.email)
-          .on("ofuscatedPassword" -> ofuscatedPassword)
-          .as(Dao.login._3.singleOpt)
-        responsableOpt.fold {
+      userService.login(loginRequest).map {
+        _.fold {
           Unauthorized("Invalid email/password")
         } {
           responsable =>
@@ -42,35 +33,18 @@ class UserController @Inject() (@NamedDatabase("default") db: Database) extends 
         }
       }
     })
-
   }
 
-  def getResponsable(respId: Id) = AuthenticatedResp { request =>
-    val responsableOpt = db.withConnection { implicit c =>
-      Dao.responsableById._1
-        .on("respId" -> respId)
-        .as(Dao.responsableById._2.singleOpt)
+  def getResponsable(respId: Id) = AuthenticatedResp.async { request =>
+    userService.getResponsable(respId).map { responsable =>
+      Ok(Json.toJson(responsable))
     }
-    responsableOpt.fold {
-      NotFound(request.toString())
-    } {
-      responsable => Ok(Json.toJson(responsable))
-    }
-
   }
 
-  def getStudent(studentId: Id) = AuthenticatedResp { request =>
-
-    val studentOpt = db.withConnection { implicit c =>
-      Dao.alumnoById._1
-        .on("studentId" -> studentId)
-        .as(Dao.alumnoById._2.singleOpt)
+  def getStudent(studentId: Id) = AuthenticatedResp.async { request =>
+    userService.getStudent(studentId).map { student =>
+      Ok(Json.toJson(student))
     }
-    studentOpt.fold {
-      NotFound(request.toString())
-    } {
-      student => Ok(Json.toJson(student))
-    }
-
   }
+
 }

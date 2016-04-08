@@ -1,4 +1,4 @@
-package model
+package com.aulatec.users
 
 import play.api.libs.json.Json
 

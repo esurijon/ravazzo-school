@@ -54,7 +54,7 @@ POST     /login           controllers.UserController.login()
 #      schema:
 #        $ref: '#/definitions/model.Alumno'
 ###
-GET     /students/:id           controllers.UserController.getStudent(id: model.Id)
+GET     /students/:id           controllers.UserController.getStudent(id: com.aulatec.users.Id)
 
 ###
 #  summary: Retrieve responsable info 
@@ -73,4 +73,4 @@ GET     /students/:id           controllers.UserController.getStudent(id: model.
 #      schema:
 #        $ref: '#/definitions/model.Responsable'
 ###
-GET     /responsables/:id           controllers.UserController.getResponsable(id: model.Id)
+GET     /responsables/:id           controllers.UserController.getResponsable(id: com.aulatec.users.Id)

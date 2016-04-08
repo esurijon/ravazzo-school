@@ -1,8 +1,8 @@
-package model
+package com.aulatec.egress
 
-import play.api.libs.json.JsObject
-import com.fasterxml.jackson.annotation.JsonFormat
 import play.api.libs.json.Json
+import com.aulatec.users.Alumno
+import com.aulatec.users.Id
 
 case class Departure(student: Alumno, isTitular: Boolean, hasCheckin: Boolean, hasCheckout: Boolean)
 

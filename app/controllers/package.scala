@@ -1,4 +1,4 @@
-import model.Responsable
+import com.aulatec.users.Responsable
 import play.api.libs.json.Json
 import play.api.mvc.RequestHeader
 import play.api.mvc.Results.Unauthorized

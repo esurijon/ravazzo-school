@@ -1,14 +1,12 @@
-package controllers
+package com.aulatec
 
 import anorm._
-import anorm.RowParser
 import anorm.SQL
 import anorm.SqlParser._
-import anorm.SqlQuery
-import model.Alumno
-import model.Departure
-import model.Responsable
-import model.Turno
+import com.aulatec.users.Alumno
+import com.aulatec.egress.Departure
+import com.aulatec.users.Responsable
+import com.aulatec.egress.Turno
 
 object Dao {
 

@@ -10,55 +10,46 @@ import anorm._
 import anorm.NamedParameter.string
 import anorm.sqlToSimple
 import javax.inject.Inject
-import model.Departure
-import model.Departure.departureFormat
-import model.Turno
+import com.aulatec.egress.Departure
 import play.api.cache.CacheApi
 import play.api.db.Database
 import play.api.libs.json.Json
 import play.api.mvc.Controller
 import play.db.NamedDatabase
-import push.GcmPushService
-import push.PushService
 import play.api.libs.json.JsArray
-import model.Id
 import play.api.libs.json.JsError
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import push.PushMessage
 import scala.concurrent.Future
-import model.Alumno
-import push.PushMessage2
+import com.aulatec.users.Alumno
+import com.aulatec.egress.Turno
+import com.aulatec.users.Id
+import com.aulatec.push.PushMessage
+import com.aulatec.push.PushService
+import com.aulatec.push.Data
+import com.aulatec.Dao
+import com.aulatec.users.UserService
+import com.aulatec.users.Responsable
+import com.aulatec.egress.EgressManagerService
 
-class EgressManagerController @Inject() (cache: CacheApi, pushSevice: PushService, @NamedDatabase("default") db: Database) extends Controller {
+class EgressManagerController @Inject() (cache: CacheApi, pushSevice: PushService, userService: UserService, egressService: EgressManagerService, @NamedDatabase("default") db: Database) extends Controller {
 
-  private val turnoParser = Macro.indexedParser[Turno]
-
-  def getAssignedStudents = AuthenticatedResp { request =>
+  def getAssignedStudents = AuthenticatedResp.async { request =>
 
     val resp = request.user
-    val currentDate = new DateTime(DateTimeZone.getDefault)
 
-    val departures = db.withConnection { implicit c =>
-      Dao.assignedStudentsByResp._1
-        .on("familiaId" -> resp.familia)
-        .on("respId" -> resp.id)
-        .on("currentDate" -> currentDate.toDate())
-        .as(Dao.assignedStudentsByResp._2.*)
+    egressService.getAssignedStudents(resp).map { departures =>
+      Ok(Json.toJson(departures))
     }
-    Ok(Json.toJson(departures))
+
   }
 
-  def getAvailableShifts() = AuthenticatedResp { request =>
+  def getAvailableShifts() = AuthenticatedResp.async { request =>
 
-    val currentTime = new LocalTime(DateTimeZone.getDefault)
+    val resp = request.user
 
-    val turnos = db.withConnection { implicit c =>
-      Dao.currentShift._1
-        .on("schoolId" -> 22)
-        .on("currentTime" -> currentTime.toString())
-        .as(Dao.currentShift._2.*)
+    egressService.getAvailableShifts(resp) map { turnos =>
+      Ok(Json.toJson(turnos))
     }
-    Ok(Json.toJson(turnos))
 
   }
 
@@ -66,20 +57,11 @@ class EgressManagerController @Inject() (cache: CacheApi, pushSevice: PushServic
     request.body.validate[List[Id]].fold(error => {
       Future.successful(BadRequest(JsError.toJson(error)))
     }, studentIds => {
-      val futureResults = studentIds map { id =>
-        val to: String = ???
-        val data = Alumno(0, "", "")
-        val message = PushMessage(to, ???)
-        pushSevice.sendMessage(message)
-      }
 
-      Future.sequence(futureResults)
-        .map(_.zipWithIndex.map {
-          case (result, idx) =>
-            val studentId = studentIds(idx).toString
-            (studentId -> result.isRight)
-        }.toMap)
-        .map(q => Ok(Json.toJson(q)))
+      egressService.addDepartureRequest(studentIds) map { results =>
+        val x = results.map { case (id, result) => (id.toString() -> result) }
+        Ok(Json.toJson(x))
+      }
 
     })
   }
