@@ -33,7 +33,7 @@ class GcmPushService @Inject() (ws: WSClient, conf: Configuration) extends PushS
         "Content-Type" -> "application/json",
         "Authorization" -> s"key=$apiKey")
 
-    pushRequest.post(Json.toJson(0 /*message*/ )).map { pushResponse =>
+    pushRequest.post(Json.toJson(message)).map { pushResponse =>
       if (pushResponse.status >= 300) {
         Left(pushResponse.statusText)
       } else {

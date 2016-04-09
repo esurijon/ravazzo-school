@@ -9,10 +9,10 @@ case class PushMessage[T](to: String, data: Data[T])
 
 object PushMessage {
 
-  implicit def pushMessageWrites[T](implicit wrt: Writes[Data[T]]) = new Writes[PushMessage[Data[T]]] {
-    def writes(message: PushMessage[Data[T]]) = Json.obj(
+  implicit def pushMessageWrites[T](implicit wrt: Writes[Data[T]]) = new Writes[PushMessage[T]] {
+    def writes(message: PushMessage[T]) = Json.obj(
       "to" -> message.to,
-      "data" -> Json.toJson(0/*message.data*/))
+      "data" -> Json.toJson(message.data))
   }
 }
 

@@ -12,7 +12,7 @@
 #      schema: 
 #        type: array
 #        items: 
-#          $ref: '#/definitions/model.Departure'
+#          $ref: '#/definitions/com.aulatec.egress.Departure'
 ###
 GET     /assigned-students           controllers.EgressManagerController.getAssignedStudents()
 
@@ -30,7 +30,7 @@ GET     /assigned-students           controllers.EgressManagerController.getAssi
 #      schema: 
 #        type: array
 #        items: 
-#          $ref: '#/definitions/model.Departure'
+#          $ref: '#/definitions/com.aulatec.egress.Departure'
 ###
 GET     /departure-requests	           controllers.EgressManagerController.getAssignedStudents()
 
@@ -65,7 +65,7 @@ GET     /departure-requests	           controllers.EgressManagerController.getAs
 #    PUSH:
 #      description: Message pushed to dispatcher user in data property
 #      schema:
-#        $ref: '#/definitions/model.Departure'
+#        $ref: '#/definitions/com.aulatec.egress.Departure'
 ###
 POST     /departure-requests           controllers.EgressManagerController.departureRequest()
 
@@ -97,7 +97,7 @@ POST     /departure-requests           controllers.EgressManagerController.depar
 #    PUSH:
 #      description: Message pushed to parent user in data property
 #      schema:
-#        $ref: '#/definitions/model.Departure'
+#        $ref: '#/definitions/com.aulatec.egress.Departure'
 ###
 POST     /departure-notifications      controllers.EgressManagerController.departureNotification()
 

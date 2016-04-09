@@ -34,7 +34,7 @@ class UserService @Inject() (@NamedDatabase("default") db: Database) {
         .as(Dao.login._3.singleOpt)
 
     }
-  }
+  } 
 
   def getResponsable(respId: Id): Future[Responsable] = Future {
     db.withConnection { implicit c =>

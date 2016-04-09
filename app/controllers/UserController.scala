@@ -16,6 +16,10 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import com.aulatec.Dao
 import com.aulatec.users.UserService
+import java.sql.SQLException
+import com.aulatec.users.Alumno
+import anorm.AnormException
+import org.omg.CosNaming.NamingContextPackage.NotFound
 
 class UserController @Inject() (userService: UserService) extends Controller {
 
@@ -38,12 +42,16 @@ class UserController @Inject() (userService: UserService) extends Controller {
   def getResponsable(respId: Id) = AuthenticatedResp.async { request =>
     userService.getResponsable(respId).map { responsable =>
       Ok(Json.toJson(responsable))
+    }.recover {
+      case AnormException("SqlMappingError(No rows when expecting a single one)") => NotFound(request.toString())
     }
   }
 
   def getStudent(studentId: Id) = AuthenticatedResp.async { request =>
     userService.getStudent(studentId).map { student =>
       Ok(Json.toJson(student))
+    }.recover {
+      case AnormException("SqlMappingError(No rows when expecting a single one)") => NotFound(request.toString())
     }
   }
 

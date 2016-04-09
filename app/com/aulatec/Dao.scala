@@ -103,6 +103,11 @@ FROM
 
   }
 
+  val insertDepartureRequest = SQL(s"""
+INSERT INTO aulatec.log_alumnos_retira(alumno, resp, fecha_retiro, hora_retiro)
+VALUES ({studentId}, {respId}, {egressDate}, time {egressTime})
+""")
+
   val login = (registerDevice, loguinQuery, responsableParser)
   val alumnoById = (alumnoByIdQuery, alumnoParser)
   val responsableById = (responsableByIdQuery, responsableParser)

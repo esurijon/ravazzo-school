@@ -24,7 +24,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 #      description: login request
 #      required: true,
 #      schema:
-#        $ref: '#/definitions/model.LoginRequest'
+#        $ref: '#/definitions/com.aulatec.users.LoginRequest'
 #  responses:
 #    200:
 #      description: User info
@@ -33,7 +33,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 #         description: session information
 #         type: string
 #      schema:
-#        $ref: '#/definitions/model.Responsable'
+#        $ref: '#/definitions/com.aulatec.users.Responsable'
 ###
 POST     /login           controllers.UserController.login()
 
@@ -52,7 +52,7 @@ POST     /login           controllers.UserController.login()
 #    200:
 #      description: Person basic info
 #      schema:
-#        $ref: '#/definitions/model.Alumno'
+#        $ref: '#/definitions/com.aulatec.users.Alumno'
 ###
 GET     /students/:id           controllers.UserController.getStudent(id: com.aulatec.users.Id)
 
@@ -71,6 +71,6 @@ GET     /students/:id           controllers.UserController.getStudent(id: com.au
 #    200:
 #      description: Person basic info
 #      schema:
-#        $ref: '#/definitions/model.Responsable'
+#        $ref: '#/definitions/com.aulatec.users.Responsable'
 ###
 GET     /responsables/:id           controllers.UserController.getResponsable(id: com.aulatec.users.Id)

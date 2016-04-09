@@ -58,7 +58,8 @@ class EgressManagerController @Inject() (cache: CacheApi, pushSevice: PushServic
       Future.successful(BadRequest(JsError.toJson(error)))
     }, studentIds => {
 
-      egressService.addDepartureRequest(studentIds) map { results =>
+      val resp = request.user
+      egressService.addDepartureRequest(resp, studentIds) map { results =>
         val x = results.map { case (id, result) => (id.toString() -> result) }
         Ok(Json.toJson(x))
       }

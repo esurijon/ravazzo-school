@@ -60,14 +60,14 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
     }
   }
 
-  def addDepartureRequest(studentIds: List[Id]): Future[Map[Id, Boolean]] = {
+  def addDepartureRequest(resp: Responsable, studentIds: List[Id]): Future[Map[Id, Boolean]] = {
 
     val futureResults = studentIds map { id =>
 
       for {
         student <- userService.getStudent(id)
         dispatcher <- getStudentDispatcher(student)
-        _ <- addDepartureRequest2(student)
+        _ <- logDeparture(resp, student)
         pushResult <- sendMessage(student, dispatcher)
       } yield (pushResult)
 
@@ -82,12 +82,22 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
   }
 
   private def getStudentDispatcher(student: Alumno): Future[Responsable] = {
-    userService.getResponsable(student.id)
-    ???
+    userService.getResponsable(3)
   }
 
-  private def addDepartureRequest2(student: Alumno): Future[Unit] = {
-    ???
+  private def logDeparture(resp: Responsable, student: Alumno): Future[Unit] = Future {
+    val currentDate = new DateTime(DateTimeZone.getDefault)
+    val currentTime = new LocalTime(DateTimeZone.getDefault)
+
+    db.withConnection { implicit c =>
+      Dao.insertDepartureRequest
+        .on("studentId" -> student.id)
+        .on("respId" -> resp.id)
+        .on("egressDate" -> currentDate.toDate)
+        .on("egressTime" -> currentTime.toString)
+        .execute()
+    }
+
   }
 
   private def sendMessage(student: Alumno, resp: Responsable): Future[Either[String, Unit]] = {
