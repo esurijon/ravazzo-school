@@ -42,12 +42,6 @@ POST     /login           controllers.UserController.login()
 #  description: Retrieve student basic info only if authenticated user has access to it 
 #  tags: 
 #   - user
-#  parameters:
-#    - name: Session
-#      in: header
-#      description: Session information of logged user
-#      required: true
-#      type: string
 #  responses:
 #    200:
 #      description: Person basic info
@@ -61,12 +55,6 @@ GET     /students/:id           controllers.UserController.getStudent(id: com.au
 #  description: Retrieve responsable basic info only if authenticated user has access to it 
 #  tags: 
 #   - user
-#  parameters:
-#    - name: Session
-#      in: header
-#      description: Session information of logged user
-#      required: true
-#      type: string
 #  responses:
 #    200:
 #      description: Person basic info

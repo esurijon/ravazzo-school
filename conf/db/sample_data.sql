@@ -1,8 +1,8 @@
 INSERT INTO aulatec.responsable (id, familia, nombre, apellido, dni, celular, email, password, pais, es_docente)
 VALUES
-(1, 1, 'Ezequiel', 'Surijon', 26348014, '11-6463-1122', 'surijon@gmail.com', 'suri', 'AR', false),
+(1, 1, 'Ezequiel', 'Surijon', 26348014, '11-6463-1122', 'suri@gmail.com', 'suri', 'AR', false),
 (2, 2, 'Federico', 'Gavuzzo', 26348018, '11-6463-1123', 'fede@gmail.com', 'fede', 'AR', false),
-(3, 3, 'Jacinta', 'Pichimauida', 26348016, '11-6463-1121', 'jacinta@gmail.com', 'jachu', 'AR', true);
+(3, 3, 'Jacinta', 'Pichimauida', 26348016, '11-6463-1121', 'seno@gmail.com', 'seno', 'AR', true);
 
 
 INSERT INTO aulatec.colegio(id, nombre, pais)

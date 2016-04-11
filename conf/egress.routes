@@ -1,11 +1,6 @@
 ###
 #  summary: Retrieve assigned children to pickup 
 #  description: Retrieve assigned children to pickup by the authenticated parent for the current egress turn. 
-#  parameters:
-#    - name: Cookie
-#      in: header
-#      description: Session information of logged in parent
-#      type: string
 #  responses:
 #    200:
 #      description: List of departure entries
@@ -19,11 +14,6 @@ GET     /assigned-students           controllers.EgressManagerController.getAssi
 ###
 #  summary: Logged departures
 #  description: Retrieve all departures logged for specific shift and classroom. 
-#  parameters:
-#    - name: Cookie
-#      in: header
-#      description: Session information of logged in parent
-#      type: string
 #  responses:
 #    200:
 #      description: List of departure entries
@@ -52,7 +42,7 @@ GET     /departure-requests	           controllers.EgressManagerController.getAs
 #      schema: 
 #        type: array
 #        items: 
-#          type: string
+#          type: int
 #  responses:
 #    204:
 #      description: success
