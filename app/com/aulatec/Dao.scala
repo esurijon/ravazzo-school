@@ -21,7 +21,7 @@ object Dao {
 
   private val alumnoByIdQuery = SQL(s"""
 SELECT 
-  id, nombre, apellido
+  id, nombre, apellido, aula
 FROM 
   aulatec.alumno
 WHERE 
@@ -105,12 +105,15 @@ FROM
 
   val insertDepartureRequest = SQL(s"""
 INSERT INTO aulatec.log_alumnos_retira(alumno, resp, fecha_retiro, hora_retiro)
-VALUES ({studentId}, {respId}, {egressDate}, time {egressTime})
+VALUES ({studentId}, {respId}, {egressDate}, {egressTime})
 """)
 
-  val login = (registerDevice, loguinQuery, responsableParser)
+  val departuresByDispatcherQuery = SQL(s"""""")
+
+val login = (registerDevice, loguinQuery, responsableParser)
   val alumnoById = (alumnoByIdQuery, alumnoParser)
   val responsableById = (responsableByIdQuery, responsableParser)
   val currentShift = (currentShiftsBySchoolQuery, shiftParser)
   val assignedStudentsByResp = (assignedStudentsByRespQuery, departureParser)
+  val departuresByDispatcher = (departuresByDispatcherQuery, departureParser)
 }

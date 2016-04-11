@@ -22,7 +22,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 #    - name: body
 #      in: body
 #      description: login request
-#      required: true,
+#      required: true
 #      schema:
 #        $ref: '#/definitions/com.aulatec.users.LoginRequest'
 #  responses:
@@ -46,7 +46,7 @@ POST     /login           controllers.UserController.login()
 #    - name: Session
 #      in: header
 #      description: Session information of logged user
-#      required: true,
+#      required: true
 #      type: string
 #  responses:
 #    200:
@@ -65,7 +65,7 @@ GET     /students/:id           controllers.UserController.getStudent(id: com.au
 #    - name: Session
 #      in: header
 #      description: Session information of logged user
-#      required: true,
+#      required: true
 #      type: string
 #  responses:
 #    200:

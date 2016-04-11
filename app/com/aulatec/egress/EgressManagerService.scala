@@ -60,15 +60,15 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
     }
   }
 
-  def addDepartureRequest(resp: Responsable, studentIds: List[Id]): Future[Map[Id, Boolean]] = {
+  def requestDeparture(resp: Responsable, studentIds: List[Id]): Future[Map[Id, String]] = {
 
     val futureResults = studentIds map { id =>
 
       for {
         student <- userService.getStudent(id)
-        dispatcher <- getStudentDispatcher(student)
+        dispatcherOpt <- getStudentDispatcher(student)
         _ <- logDeparture(resp, student)
-        pushResult <- sendMessage(student, dispatcher)
+        pushResult <- pushDepartureRequest(student, dispatcherOpt)
       } yield (pushResult)
 
     }
@@ -76,13 +76,14 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
     Future.sequence(futureResults).map(_.zipWithIndex.map {
       case (result, idx) =>
         val studentId = studentIds(idx)
-        (studentId -> result.isRight)
+        val resultTxt = result.fold[String](identity, _ => "Ok")
+        (studentId -> resultTxt)
     }.toMap)
 
   }
 
-  private def getStudentDispatcher(student: Alumno): Future[Responsable] = {
-    userService.getResponsable(3)
+  private def getStudentDispatcher(student: Alumno): Future[Option[Responsable]] = {
+    userService.getResponsable(3) map (Some(_))
   }
 
   private def logDeparture(resp: Responsable, student: Alumno): Future[Unit] = Future {
@@ -100,13 +101,56 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
 
   }
 
-  private def sendMessage(student: Alumno, resp: Responsable): Future[Either[String, Unit]] = {
+  private def pushDepartureRequest(student: Alumno, dispatcherOpt: Option[Responsable]): Future[Either[String, Unit]] = {
+    dispatcherOpt.fold[Future[Either[String, Unit]]] {
+      Future.successful(Left(s"No dispatcher assigned to classroom ${student.aula}"))
+    } { dispatcher =>
+      dispatcher.deviceRegId.fold[Future[Either[String, Unit]]] {
+        Future.successful(Left(s"No device attached to user ${dispatcher.id}"))
+      } { deviceRegId =>
+        val to = deviceRegId
+        val message = PushMessage(to, Data("departureRequest", student))
+        pushSevice.sendMessage(message)
+      }
+    }
+  }
+
+  def notifyDeparture(dispatcher: Responsable, studentId: Id): Future[String] = {
+    (for {
+      student <- userService.getStudent(studentId)
+      resp <- getStudentResponsable(student)
+      _ <- updateDeparture(resp, student)
+      pushResult <- pushDepartureNotification(student, resp)
+    } yield (pushResult)) map { result =>
+      result.fold(identity, _ => "Ok")
+    }
+  }
+
+  private def getStudentResponsable(student: Alumno): Future[Responsable] = {
+    userService.getResponsable(1)
+  }
+
+  private def updateDeparture(dispatcher: Responsable, student: Alumno): Future[Unit] = Future {
+    ???
+  }
+
+  private def pushDepartureNotification(student: Alumno, resp: Responsable): Future[Either[String, Unit]] = {
     resp.deviceRegId.fold[Future[Either[String, Unit]]] {
       Future.successful(Left(s"No device attached to user ${resp.id}"))
     } { deviceRegId =>
       val to = deviceRegId
-      val message = PushMessage(to, Data("departureRequest", student))
+      val message = PushMessage(to, Data("departureNotification", student))
       pushSevice.sendMessage(message)
+    }
+  }
+
+  def getDepartureRequests(dispatcher: Responsable): Future[List[Departure]] = Future {
+    db.withConnection { implicit c =>
+      Dao.departuresByDispatcher._1
+        //        .on("familiaId" -> resp.familia)
+        //        .on("respId" -> resp.id)
+        //        .on("currentDate" -> currentDate.toDate())
+        .as(Dao.departuresByDispatcher._2.*)
     }
   }
 

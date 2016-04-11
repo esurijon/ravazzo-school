@@ -48,7 +48,7 @@ GET     /departure-requests	           controllers.EgressManagerController.getAs
 #      in: body
 #      description: list o children ids
 #      name: body
-#      required: true,
+#      required: true
 #      schema: 
 #        type: array
 #        items: 
@@ -76,13 +76,13 @@ POST     /departure-requests           controllers.EgressManagerController.depar
 #    - name: Cookie
 #      in: header
 #      description: Session information of logged in parent
-#      required: true,
+#      required: true
 #      type: string
 #    - name: body
 #      in: body
 #      description: children id
 #      name: body
-#      required: true,
+#      required: true
 #      schema: 
 #        type: string
 #  responses:
@@ -108,13 +108,13 @@ POST     /departure-notifications      controllers.EgressManagerController.depar
 #    - name: Cookie
 #      in: header
 #      description: Session information of logged in parent
-#      required: true,
+#      required: true
 #      type: string
 #    - name: body
 #      in: body
 #      description: value to update status
 #      name: body
-#      required: true,
+#      required: true
 #      schema: 
 #        type: string
 #  responses:

@@ -59,7 +59,7 @@ class EgressManagerController @Inject() (cache: CacheApi, pushSevice: PushServic
     }, studentIds => {
 
       val resp = request.user
-      egressService.addDepartureRequest(resp, studentIds) map { results =>
+      egressService.requestDeparture(resp, studentIds) map { results =>
         val x = results.map { case (id, result) => (id.toString() -> result) }
         Ok(Json.toJson(x))
       }
@@ -67,12 +67,23 @@ class EgressManagerController @Inject() (cache: CacheApi, pushSevice: PushServic
     })
   }
 
-  def departureNotification() = AuthenticatedResp { request =>
-    NotImplemented
+  def departureNotification() = AuthenticatedResp.async(parse.json) { request =>
+    request.body.validate[Id].fold(error => {
+      Future.successful(BadRequest(JsError.toJson(error)))
+    }, studentId => {
+      val resp = request.user
+      egressService.notifyDeparture(resp, studentId) map { result =>
+        Ok(Json.toJson(result))
+      }
+    })
+
   }
 
-  def getUndispatchedDepartureRequests = AuthenticatedResp { request =>
-    NotImplemented
+  def getdDepartureRequestsByDispatcher = AuthenticatedResp.async { request =>
+    val dispatcher = request.user
+    egressService.getDepartureRequests(dispatcher) map { departures =>
+      Ok(Json.toJson(departures))
+    }
   }
 
   def setEgressStatus() = AuthenticatedResp { request =>
