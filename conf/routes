@@ -62,3 +62,5 @@ GET     /students/:id           controllers.UserController.getStudent(id: com.au
 #        $ref: '#/definitions/com.aulatec.users.Responsable'
 ###
 GET     /responsables/:id           controllers.UserController.getResponsable(id: com.aulatec.users.Id)
+
+DELETE /departures					controllers.Application.deleteDepartureLog()

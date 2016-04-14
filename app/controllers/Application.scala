@@ -13,53 +13,18 @@ import play.api.mvc.Action
 import play.api.mvc.BodyParsers
 import play.api.mvc.Controller
 import com.aulatec.push.PushService
+import play.api.db.Database
+import play.api.db.NamedDatabaseProvider
+import anorm._
 
-class Application @Inject() (cache: CacheApi, pushSevice: PushService) extends Controller {
+class Application @Inject() (@NamedDatabaseProvider("default") db: Database) extends Controller {
 
-  def registerDevice(nick: String) = Action(BodyParsers.parse.json) { request =>
+  def deleteDepartureLog() = AuthenticatedResp { request =>
 
-    request.body.validate[String].fold(
-      errors => InternalServerError(JsError.toJson(errors)),
-      deviceRegId => {
-        cache.set(nick, deviceRegId)
-        Ok
-      })
-
+    val count = db.withConnection { implicit c =>
+      SQL("DELETE FROM aulatec. aulatec.log_alumnos_retira ").executeUpdate()
+    }
+    Ok(s"$count")
   }
-
-//  def sendMessage(nick: String) = Action.async(BodyParsers.parse.json) { request =>
-//
-//    val serverReceiveTime = System.currentTimeMillis()
-//
-//    request.body.validate[ChatInboundMessage].fold(
-//      errors => Future.successful(InternalServerError(JsError.toJson(errors))),
-//      chatMessage => {
-//
-//        cache.get[String](nick).fold {
-//          Future.successful(NotFound(s"No device registered for $nick"))
-//        } { deviceRegId =>
-//
-//          val notification = Notification(
-//            "${chatMessage.from}: ${chatMessage.message}".take(15),
-//            "",
-//            None)
-//          val data = ChatOutboundMessage(
-//            chatMessage.sender,
-//            chatMessage.message,
-//            chatMessage.clientSentTime,
-//            serverReceiveTime,
-//            System.currentTimeMillis())
-//
-//          val pushMessage = PushMessage(deviceRegId, Some(notification), Some(Json.toJson(data)))
-//
-//          pushSevice.sendMessage(pushMessage) map { result =>
-//            result.fold(BadGateway(_), _ => Ok)
-//          }
-//
-//        }
-//
-//      })
-//
-//  }
 
 }
