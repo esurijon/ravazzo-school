@@ -4,7 +4,6 @@ VALUES
 (2, 2, 'Federico', 'Gavuzzo', 26348018, '11-6463-1123', 'fede@gmail.com', 'fede', 'AR', false),
 (3, 3, 'Jacinta', 'Pichimauida', 26348016, '11-6463-1121', 'seno@gmail.com', 'seno', 'AR', true);
 
-
 INSERT INTO aulatec.colegio(id, nombre, pais)
 VALUES
 (1, 'LOMITAS', 'AR');
@@ -26,6 +25,11 @@ VALUES
 (1, 1, 1, 'Guadalupe', 'Surijon', 1, 'AR'),
 (2, 1, 2, 'Tomas', 'Gavuzzo', 1, 'AR');
 
-INSERT INTO aulatec.fam_alu_resp(familia, alumno, aula, resp, valido_desde, valido_hasta)
+INSERT INTO aulatec.fam_alu_resp(alumno, resp, valido_desde, valido_hasta)
 VALUES
-(2, 2, 1, 1, '2016-01-01', '2017-01-01');
+(2, 1, '2016-01-01', '2017-01-01');
+
+INSERT INTO aulatec.log_docente_aula(resp, aula, turno, fecha_retiro)
+VALUES
+(3, 1, 1, '2016-03-01');
+

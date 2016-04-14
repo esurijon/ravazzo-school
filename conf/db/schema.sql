@@ -2,6 +2,16 @@ DROP SCHEMA IF EXISTS aulatec;
 
 CREATE SCHEMA aulatec; 
 
+CREATE TABLE aulatec.colegio(
+	id serial,
+	nombre varchar(80) NOT NULL,
+	logo varchar(80),
+	pais char(2) NOT NULL,
+	CONSTRAINT colegio_id_pk PRIMARY KEY (id)
+);
+COMMENT ON TABLE aulatec.colegio
+  IS 'Tabla maestra de colegios con su nombre, logo y pais';
+
 CREATE TABLE aulatec.custom_cole(
 	id serial,
 	cus_puerta boolean, 
@@ -12,20 +22,12 @@ CREATE TABLE aulatec.custom_cole(
 	cus_docente boolean, 
 	cus_evento boolean, 
 	cus_factu boolean,
-	CONSTRAINT custom_cole_pk PRIMARY KEY (id)
+	CONSTRAINT custom_cole_id_pk PRIMARY KEY (id),
+	CONSTRAINT custom_cole_id_fk FOREIGN KEY (id) 
+		REFERENCES aulatec.colegio (id)
 );
 COMMENT ON TABLE aulatec.custom_cole
   IS 'Opciones customizables habilitadas para cada colegio - nueva sección será un nuevo campo';
-
-CREATE TABLE aulatec.colegio(
-	id serial,
-	nombre varchar(80) NOT NULL,
-	logo varchar(80),
-	pais char(2) NOT NULL,
-	CONSTRAINT colegio_id_pk PRIMARY KEY (id)
-);
-COMMENT ON TABLE aulatec.colegio
-  IS 'Tabla maestra de colegios con su nombre, logo y pais';
 
 CREATE TABLE aulatec.turno(
 	id serial,
@@ -55,12 +57,11 @@ COMMENT ON TABLE aulatec.puerta
 CREATE TABLE aulatec.aula(
 	id serial,
 	cole integer,
-	txt1 varchar(40) NOT NULL,
-	txt2 varchar (80),
 	turno integer,
 	puerta integer,
+	txt1 varchar(40) NOT NULL,
+	txt2 varchar (80),
 	CONSTRAINT aula_id_pk PRIMARY KEY (id),
-	CONSTRAINT aula_puerta_aula_uk UNIQUE (puerta),
 	CONSTRAINT aula_cole_fk FOREIGN KEY (cole) 
 		REFERENCES aulatec.colegio (id),
 	CONSTRAINT aula_turno_fk FOREIGN KEY (turno) 
@@ -109,34 +110,14 @@ CREATE TABLE aulatec.alumno(
 COMMENT ON TABLE aulatec.alumno
   IS 'Tabla maestra de Alumnos';
 
-
-CREATE TABLE aulatec.cole_resp(
-	cole integer,
-	resp integer,
-	esTitular boolean,
-	CONSTRAINT cole_resp_cole_resp_pk PRIMARY KEY (cole, resp),
-	CONSTRAINT cole_resp_cole_fk FOREIGN KEY (cole) 
-		REFERENCES aulatec.colegio (id),
-	CONSTRAINT cole_resp_resp_fk FOREIGN KEY (resp) 
-		REFERENCES aulatec.responsable (id)
-);
-COMMENT ON TABLE aulatec.cole_resp
-  IS 'Tabla que relaciona a cada responsable con los colegios en los que puede operar y bajo que Rol (Titular, Autorizado o Docente)';
-
 CREATE TABLE aulatec.fam_alu_resp(
-	familia integer,
 	alumno  integer,
-	aula  integer,
 	resp  integer,
 	valido_desde date,
 	valido_hasta date,
-	CONSTRAINT fam_alu_resp_familia_alumno_pk PRIMARY KEY (familia, alumno),
-	CONSTRAINT fam_alu_resp_familia_fk FOREIGN KEY (familia) 
-		REFERENCES aulatec.responsable (familia),
+	CONSTRAINT fam_alu_resp_familia_alumno_pk PRIMARY KEY (alumno, resp),
 	CONSTRAINT fam_alu_resp_alumno_fk FOREIGN KEY (alumno) 
 		REFERENCES aulatec.alumno (id),
-	CONSTRAINT fam_alu_resp_aula_fk FOREIGN KEY (aula)
-		REFERENCES aulatec.aula (id),
 	CONSTRAINT fam_alu_resp_resp_fk FOREIGN KEY (resp) 
 		REFERENCES aulatec.responsable (id)
 );
@@ -155,4 +136,52 @@ CREATE TABLE aulatec.log_alumnos_retira(
 );
 COMMENT ON TABLE aulatec.log_alumnos_retira
   IS 'Tabla de Log para el retiro de alumnos con responsable y fecha';
+  
+CREATE TABLE aulatec.log_docente_aula(
+	resp  integer NOT NULL,
+	aula integer NOT NULL,
+	turno integer NOT NULL,
+	fecha_retiro date NOT NULL,
+	CONSTRAINT log_docente_aula_pk PRIMARY KEY (resp, aula, turno, fecha_retiro),
+	CONSTRAINT log_docente_aula_resp_fk FOREIGN KEY (resp) 
+		REFERENCES aulatec.responsable (id),
+	CONSTRAINT log_docente_aula_turno_fk FOREIGN KEY (turno) 
+		REFERENCES aulatec.turno (id),
+	CONSTRAINT log_docente_aula_aula_fk FOREIGN KEY (aula) 
+		REFERENCES aulatec.aula (id)
+);
+COMMENT ON TABLE aulatec.log_docente_aula
+  IS 'Tabla de Log que relaciona una docente con una o N aulas por cada dia de retiros';
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+CREATE TABLE aulatec.cole_resp(
+	cole integer,
+	resp integer,
+	esTitular boolean,
+	CONSTRAINT cole_resp_cole_resp_pk PRIMARY KEY (cole, resp),
+	CONSTRAINT cole_resp_cole_fk FOREIGN KEY (cole) 
+		REFERENCES aulatec.colegio (id),
+	CONSTRAINT cole_resp_resp_fk FOREIGN KEY (resp) 
+		REFERENCES aulatec.responsable (id)
+);
+COMMENT ON TABLE aulatec.cole_resp
+  IS 'Tabla que relaciona a cada responsable con los colegios en los que puede operar y bajo que Rol (Titular, Autorizado o Docente)';
+
   

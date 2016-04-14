@@ -1,41 +1,42 @@
 package com.aulatec.egress
 
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
+import scala.concurrent.Future
+
+import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 
-import com.google.inject.ImplementedBy
+import com.aulatec.Dao
+import com.aulatec.push.Data
+import com.aulatec.push.PushMessage
+import com.aulatec.push.PushService
+import com.aulatec.users.Alumno
+import com.aulatec.users.Responsable
+import com.aulatec.users.UserService
 
 import anorm._
 import anorm.NamedParameter.string
 import anorm.sqlToSimple
 import javax.inject.Inject
+import javax.inject.Singleton
 import play.api.cache.CacheApi
 import play.api.db.Database
-import play.api.libs.json.Json
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.Controller
 import play.db.NamedDatabase
-import play.api.libs.json.JsArray
-import play.api.libs.json.JsError
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import scala.concurrent.Future
-import com.aulatec.users.Alumno
 import com.aulatec.users.Id
-import com.aulatec.push.PushMessage
-import com.aulatec.push.PushService
-import com.aulatec.push.Data
-import com.aulatec.Dao
-import com.aulatec.users.UserService
-import com.aulatec.users.Responsable
-import javax.inject.Singleton
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 @Singleton
 class EgressManagerService @Inject() (pushSevice: PushService, userService: UserService, @NamedDatabase("default") db: Database) extends Controller {
 
+  private def current(): (LocalDate, LocalTime) = {
+    //(new DateTime(DateTimeZone.getDefault), new LocalTime(DateTimeZone.getDefault))
+    (new LocalDate(2016, 3, 1), new LocalTime(12, 15))
+  }
+
   def getAssignedStudents(resp: Responsable): Future[List[Departure]] = Future {
 
-    val currentDate = new DateTime(DateTimeZone.getDefault)
+    val (currentDate, _) = current()
 
     db.withConnection { implicit c =>
       Dao.assignedStudentsByResp._1
@@ -49,11 +50,11 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
 
   def getAvailableShifts(resp: Responsable): Future[List[Turno]] = Future {
 
-    val currentTime = new LocalTime(DateTimeZone.getDefault)
+    val (_, currentTime) = current()
 
     db.withConnection { implicit c =>
       Dao.currentShift._1
-        .on("schoolId" -> 22)
+        .on("schoolId" -> ???)
         .on("currentTime" -> currentTime.toString())
         .as(Dao.currentShift._2.*)
 
@@ -87,8 +88,7 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
   }
 
   private def logDeparture(resp: Responsable, student: Alumno): Future[Unit] = Future {
-    val currentDate = new DateTime(DateTimeZone.getDefault)
-    val currentTime = new LocalTime(DateTimeZone.getDefault)
+    val (currentDate, currentTime) = current()
 
     db.withConnection { implicit c =>
       Dao.insertDepartureRequest
@@ -145,11 +145,11 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
   }
 
   def getDepartureRequests(dispatcher: Responsable): Future[List[Departure]] = Future {
+    val (currentDate, _) = current()
     db.withConnection { implicit c =>
       Dao.departuresByDispatcher._1
-        //        .on("familiaId" -> resp.familia)
-        //        .on("respId" -> resp.id)
-        //        .on("currentDate" -> currentDate.toDate())
+        .on("dispatcher" -> 3)
+        .on("currentDate" -> currentDate.toDate())
         .as(Dao.departuresByDispatcher._2.*)
     }
   }

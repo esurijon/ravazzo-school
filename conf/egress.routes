@@ -22,7 +22,7 @@ GET     /assigned-students           controllers.EgressManagerController.getAssi
 #        items: 
 #          $ref: '#/definitions/com.aulatec.egress.Departure'
 ###
-GET     /departure-requests	           controllers.EgressManagerController.getAssignedStudents()
+GET     /departure-requests	           controllers.EgressManagerController.getDepartureRequestsByDispatcher()
 
 ###
 #  summary: Request a child to come out

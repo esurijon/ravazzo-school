@@ -79,7 +79,7 @@ class EgressManagerController @Inject() (cache: CacheApi, pushSevice: PushServic
 
   }
 
-  def getdDepartureRequestsByDispatcher = AuthenticatedResp.async { request =>
+  def getDepartureRequestsByDispatcher = AuthenticatedResp.async { request =>
     val dispatcher = request.user
     egressService.getDepartureRequests(dispatcher) map { departures =>
       Ok(Json.toJson(departures))

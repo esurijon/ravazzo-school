@@ -14,9 +14,9 @@ object Dao {
   private val alumnoParser = Macro.indexedParser[Alumno]
   private val shiftParser = Macro.indexedParser[Turno]
   private val parser = (str("name") ~ int("population")).map { case a => 2 }
-  private val departureParser = alumnoParser ~ bool("is_titular") ~ get[Option[Boolean]]("checkout") map {
-    case student ~ isTitular ~ checkoutOpt =>
-      Departure(student, isTitular, checkoutOpt.isDefined, checkoutOpt.getOrElse(false))
+  private val departureParser = alumnoParser ~ int("resp_id") ~ bool("is_titular") ~ get[Option[Boolean]]("checkout") map {
+    case student ~ respId ~ isTitular ~ checkoutOpt =>
+      Departure(student, respId, isTitular, checkoutOpt.isDefined, checkoutOpt.getOrElse(false))
   }
 
   private val alumnoByIdQuery = SQL(s"""
@@ -71,7 +71,7 @@ WHERE
   private val assignedStudentsByRespQuery = {
     val ownStudentsQuery = s"""
 SELECT
-  a.id, a.nombre, a.apellido, true AS is_titular, b.checkout 
+  a.id, a.nombre, a.apellido, a.aula, {respId} AS resp_id, true AS is_titular, b.checkout 
 FROM
   aulatec.alumno a LEFT OUTER JOIN aulatec.log_alumnos_retira b
     on (
@@ -82,7 +82,7 @@ WHERE
 """
     val authorizedStudentsQuery = s"""
 SELECT
-  a.id, a.nombre, a.apellido, false AS is_titular, c.checkout
+  a.id, a.nombre, a.apellido, a.aula, b.resp AS resp_id, false AS is_titular, c.checkout
 FROM
   aulatec.alumno a INNER JOIN 
   aulatec.fam_alu_resp b 
@@ -96,7 +96,7 @@ WHERE
 """
 
     SQL(s"""
-SELECT id, nombre, apellido, is_titular, checkout
+SELECT id, nombre, apellido, aula, resp_id, is_titular, checkout
 FROM 
   ($ownStudentsQuery UNION ALL $authorizedStudentsQuery) AS assigned_students 
 """)
@@ -108,9 +108,32 @@ INSERT INTO aulatec.log_alumnos_retira(alumno, resp, fecha_retiro, hora_retiro)
 VALUES ({studentId}, {respId}, {egressDate}, {egressTime})
 """)
 
-  val departuresByDispatcherQuery = SQL(s"""""")
+  val departuresByDispatcherQuery = {
 
-val login = (registerDevice, loguinQuery, responsableParser)
+    val dispatcherClassRoomsByDate = """
+SELECT 
+  aula 
+FROM 
+  aulatec.log_docente_aula 
+WHERE 
+resp = {dispatcher} AND
+fecha_retiro = {currentDate}
+"""
+    SQL(s"""
+SELECT
+  a.id, a.nombre, a.apellido, a.aula, b.resp AS resp_id, a.familia = c.familia AS is_titular, b.checkout
+FROM
+  aulatec.alumno a INNER JOIN 
+  aulatec.log_alumnos_retira b 
+    on (a.id = b.alumno) INNER JOIN aulatec.responsable c 
+    on(b.resp = c.id) 
+WHERE
+ fecha_retiro = {currentDate} AND 
+ a.aula IN ($dispatcherClassRoomsByDate) 
+""")
+  }
+
+  val login = (registerDevice, loguinQuery, responsableParser)
   val alumnoById = (alumnoByIdQuery, alumnoParser)
   val responsableById = (responsableByIdQuery, responsableParser)
   val currentShift = (currentShiftsBySchoolQuery, shiftParser)
