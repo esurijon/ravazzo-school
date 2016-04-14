@@ -22,7 +22,7 @@ class Application @Inject() (@NamedDatabaseProvider("default") db: Database) ext
   def deleteDepartureLog() = AuthenticatedResp { request =>
 
     val count = db.withConnection { implicit c =>
-      SQL("DELETE FROM aulatec. aulatec.log_alumnos_retira ").executeUpdate()
+      SQL("DELETE FROM aulatec.log_alumnos_retira ").executeUpdate()
     }
     Ok(s"$count")
   }
