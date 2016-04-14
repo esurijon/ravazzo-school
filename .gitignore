@@ -1,4 +1,5 @@
 aulatec.mv.db
+aulatec.trace.db
 logs
 target
 /.idea
