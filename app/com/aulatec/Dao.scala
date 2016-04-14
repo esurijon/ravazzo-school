@@ -105,7 +105,7 @@ FROM
 
   val insertDepartureRequest = SQL(s"""
 INSERT INTO aulatec.log_alumnos_retira(alumno, resp, fecha_retiro, hora_retiro)
-VALUES ({studentId}, {respId}, {egressDate}, {egressTime})
+VALUES ({studentId}, {respId}, {egressDate}, {egressTime}::time)
 """)
 
   val departuresByDispatcherQuery = {
