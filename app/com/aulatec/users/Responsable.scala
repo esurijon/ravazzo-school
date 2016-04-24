@@ -12,8 +12,7 @@ case class Responsable(
   email: String,
   pais: String,
   esDocente: Boolean,
-  deviceType: Option[String],
-  deviceRegId: Option[String]
+  device: Option[Device]
 )
 
 object Responsable {

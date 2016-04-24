@@ -7,10 +7,42 @@ import com.aulatec.users.Alumno
 import com.aulatec.egress.Departure
 import com.aulatec.users.Responsable
 import com.aulatec.egress.Turno
+import com.aulatec.users.Device
+import com.aulatec.users.Id
 
 object Dao {
 
-  private val responsableParser = Macro.indexedParser[Responsable]
+  private val deviceParser = get[Option[String]](10) ~ get[Option[String]](11) map {
+    case deviceTypeOpt ~ deviceIdOpt => for {
+      deviceType <- deviceTypeOpt
+      deviceId <- deviceIdOpt
+    } yield {
+      Device(deviceType, deviceId)
+    }
+  }
+
+  private val responsableParser =
+    get[Id](1) ~
+      get[Id](2) ~
+      str(3) ~
+      str(4) ~
+      int(5) ~
+      str(6) ~
+      str(7) ~
+      str(8) ~
+      get[Boolean](9) ~
+      deviceParser map {
+        case id
+          ~ familia
+          ~ nombre
+          ~ apellido
+          ~ dni
+          ~ celular
+          ~ email
+          ~ pais
+          ~ esDocente
+          ~ deviceOpt => Responsable(id, familia, nombre, apellido, dni, celular, email, pais, esDocente, deviceOpt)
+      }
   private val alumnoParser = Macro.indexedParser[Alumno]
   private val shiftParser = Macro.indexedParser[Turno]
   private val parser = (str("name") ~ int("population")).map { case a => 2 }
@@ -103,12 +135,7 @@ FROM
 
   }
 
-  val insertDepartureRequest = SQL(s"""
-INSERT INTO aulatec.log_alumnos_retira(alumno, resp, fecha_retiro, hora_retiro)
-VALUES ({studentId}, {respId}, {egressDate}, {egressTime}::time)
-""")
-
-  val departuresByDispatcherQuery = {
+  private val departuresByDispatcherQuery = {
 
     val dispatcherClassRoomsByDate = """
 SELECT 
@@ -132,6 +159,21 @@ WHERE
  a.aula IN ($dispatcherClassRoomsByDate) 
 """)
   }
+
+  val insertDepartureRequest = SQL(s"""
+INSERT INTO aulatec.log_alumnos_retira(alumno, resp, fecha_retiro, hora_retiro)
+VALUES ({studentId}, {respId}, {egressDate}, {egressTime}::time)
+""")
+
+  val updateDepartureRequest = SQL(s"""
+UPDATE 
+  aulatec.log_alumnos_retira 
+SET 
+  checkout = true
+WHERE
+  alumno = {studentId} AND
+  fecha_retiro = {egressDate}
+""")
 
   val login = (registerDevice, loguinQuery, responsableParser)
   val alumnoById = (alumnoByIdQuery, alumnoParser)

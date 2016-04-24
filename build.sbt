@@ -10,7 +10,8 @@ scalaVersion := "2.11.6"
 libraryDependencies ++= Seq(
   cache,
   ws,
-  "joda-time" % "joda-time" % "2.9.3"
+  "joda-time" % "joda-time" % "2.9.3",
+  "org.apache.commons" % "commons-email" % "1.4"
 )
 
 // SQL deps

@@ -1,61 +1,24 @@
 package com.aulatec.push
 
 import scala.Left
-import scala.Right
 import scala.concurrent.Future
 
 import com.google.inject.ImplementedBy
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.Configuration
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json.Json
 import play.api.libs.json.Writes
-import play.api.libs.ws.WSClient
-import org.slf4j.LoggerFactory
 
-@ImplementedBy(classOf[GcmPushService])
+@ImplementedBy(classOf[MultiPushService])
 abstract class PushService {
   def sendMessage[T](message: PushMessage[T])(implicit wrt: Writes[Data[T]]): Future[Either[String, Unit]]
 }
 
 @Singleton
-class GcmPushService @Inject() (ws: WSClient, conf: Configuration) extends PushService {
-
-  private val logger = LoggerFactory.getLogger(classOf[GcmPushService])
-
-  private val endpoint = conf.getString("gcm.endpoint").get
-  private val apiKey = conf.getString("gcm.apiKey").get
-
-  override def sendMessage[T](message: PushMessage[T])(implicit wrt: Writes[Data[T]]): Future[Either[String, Unit]] = {
-
-    val pushRequest = ws
-      .url(endpoint)
-      .withHeaders(
-        "Content-Type" -> "application/json",
-        "Authorization" -> s"key=$apiKey")
-
-    pushRequest.post(Json.toJson(message)).map { pushResponse =>
-      logger.trace(s"PUSH MESSAGE RESULT: ${pushResponse.body} (${pushResponse.status})")
-      if (pushResponse.status >= 300) {
-        Left(pushResponse.statusText)
-      } else {
-        Json.parse(pushResponse.body).validate[GcmResponse].fold[Either[String, Unit]](
-          _ => Left("Invalid response format"),
-          response => {
-            if (response.failure == 0) {
-              Right(())
-            } else {
-              response.results.fold {
-                Left("No error information")
-              } { errList =>
-                Left(errList.map(_.error).mkString(", "))
-              }
-            }
-          })
-      }
-    }
-
+class MultiPushService @Inject() (gcm: GcmPushService, smtp: SmtpPushService) extends PushService {
+  override def sendMessage[T](message: PushMessage[T])(implicit wrt: Writes[Data[T]]): Future[Either[String, Unit]] = message.to.deviceType match {
+    case "Android" => gcm.sendMessage(message)
+    case "Email" => smtp.sendMessage(message)
+    case other => Future.successful(Left(s"Unknown device type $other for message: $message"))
   }
 }

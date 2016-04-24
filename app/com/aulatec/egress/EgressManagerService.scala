@@ -105,41 +105,43 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
     dispatcherOpt.fold[Future[Either[String, Unit]]] {
       Future.successful(Left(s"No dispatcher assigned to classroom ${student.aula}"))
     } { dispatcher =>
-      dispatcher.deviceRegId.fold[Future[Either[String, Unit]]] {
+      dispatcher.device.fold[Future[Either[String, Unit]]] {
         Future.successful(Left(s"No device attached to user ${dispatcher.id}"))
-      } { deviceRegId =>
-        val to = deviceRegId
-        val message = PushMessage(to, Data("departureRequest", student))
+      } { device =>
+        val message = PushMessage(device, Data("departureRequest", student))
         pushSevice.sendMessage(message)
       }
     }
   }
-
-  def notifyDeparture(dispatcher: Responsable, studentId: Id): Future[String] = {
+  
+  def notifyDeparture(dispatcher: Responsable, departure: Departure): Future[String] = {
     (for {
-      student <- userService.getStudent(studentId)
-      resp <- getStudentResponsable(student)
-      _ <- updateDeparture(resp, student)
-      pushResult <- pushDepartureNotification(student, resp)
+      resp <- userService.getResponsable(departure.respId)
+      _ <- updateDeparture(departure.student)
+      pushResult <- pushDepartureNotification(departure.student, resp)
     } yield (pushResult)) map { result =>
       result.fold(identity, _ => "Ok")
     }
   }
 
-  private def getStudentResponsable(student: Alumno): Future[Responsable] = {
-    userService.getResponsable(1)
+  private def updateDeparture(student: Alumno): Future[Unit] = Future {
+    val (currentDate, currentTime) = current()
+
+    db.withConnection { implicit c =>
+      Dao.updateDepartureRequest
+        .on("studentId" -> student.id)
+        .on("egressDate" -> currentDate.toDate)
+        .execute()
+    }
+
   }
 
-  private def updateDeparture(dispatcher: Responsable, student: Alumno): Future[Unit] = Future {
-    ???
-  }
 
   private def pushDepartureNotification(student: Alumno, resp: Responsable): Future[Either[String, Unit]] = {
-    resp.deviceRegId.fold[Future[Either[String, Unit]]] {
+    resp.device.fold[Future[Either[String, Unit]]] {
       Future.successful(Left(s"No device attached to user ${resp.id}"))
-    } { deviceRegId =>
-      val to = deviceRegId
-      val message = PushMessage(to, Data("departureNotification", student))
+    } { device =>
+      val message = PushMessage(device, Data("departureNotification", student))
       pushSevice.sendMessage(message)
     }
   }
