@@ -46,12 +46,6 @@ GET     /departure-requests	           controllers.EgressManagerController.getDe
 #  responses:
 #    204:
 #      description: success
-#    400:
-#      description: bad request
-#    401:
-#      description: User is not authenticated
-#    403:
-#      description: User is authenticated but has no permissions to execute this command
 #    PUSH:
 #      description: Message pushed to dispatcher user in data property
 #      schema:
@@ -78,12 +72,6 @@ POST     /departure-requests           controllers.EgressManagerController.depar
 #  responses:
 #    204:
 #      description: success
-#    400:
-#      description: bad request
-#    401:
-#      description: User is not authenticated
-#    403:
-#      description: User is authenticated but has no permissions to execute this command
 #    PUSH:
 #      description: Message pushed to parent user in data property
 #      schema:
@@ -110,12 +98,6 @@ POST     /departure-notifications      controllers.EgressManagerController.depar
 #  responses:
 #    204:
 #      description: success
-#    400:
-#      description: bad request
-#    401:
-#      description: User is not authenticated
-#    403:
-#      description: User is authenticated but has no permissions to execute this command
 #    PUSH:
 #      description: Message pushed to dispatcher user in data property
 #      schema:

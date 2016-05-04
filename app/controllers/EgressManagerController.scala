@@ -68,11 +68,11 @@ class EgressManagerController @Inject() (cache: CacheApi, pushSevice: PushServic
   }
 
   def departureNotification() = AuthenticatedResp.async(parse.json) { request =>
-    request.body.validate[Departure].fold(error => {
+    request.body.validate[Id].fold(error => {
       Future.successful(BadRequest(JsError.toJson(error)))
-    }, departure => {
+    }, studentId => {
       val resp = request.user
-      egressService.notifyDeparture(resp, departure) map { result =>
+      egressService.notifyDeparture(resp, studentId) map { result =>
         Ok(Json.toJson(result))
       }
     })

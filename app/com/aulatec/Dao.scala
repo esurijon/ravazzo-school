@@ -69,7 +69,32 @@ WHERE
   id = {respId}
 """)
 
-  private val loguinQuery = SQL(s"""
+  val studentAssignedRespQuery = SQL(s"""
+SELECT
+	a.id, a.familia, a.nombre, a.apellido, a.dni, a.celular, a.email, a.pais, a.es_docente, a.device_type, a.device_reg_id
+FROM
+  aulatec.responsable a INNER JOIN aulatec.log_alumnos_retira b
+    on ( a.id = b.resp )
+WHERE
+  b.alumno = {studentId} AND
+  b.fecha_retiro = {egressDate}
+""")
+
+  val studentAssignedDispatcherQuery = SQL(s"""
+SELECT
+	a.id, a.familia, a.nombre, a.apellido, a.dni, a.celular, a.email, a.pais, a.es_docente, a.device_type, a.device_reg_id
+FROM
+  aulatec.responsable a 
+    INNER JOIN aulatec.log_docente_aula b 
+    on ( a.id = b.resp )
+    INNER JOIN aulatec.alumno c
+    on ( b.aula = c.aula )
+WHERE
+  c.id = {studentId} AND
+  b.fecha_retiro = {egressDate}
+""")
+
+private val loguinQuery = SQL(s"""
 SELECT 
 	id, familia, nombre, apellido, dni, celular, email,  pais, es_docente, device_type, device_reg_id
 FROM 
@@ -177,6 +202,8 @@ WHERE
 
   val login = (registerDevice, loguinQuery, responsableParser)
   val alumnoById = (alumnoByIdQuery, alumnoParser)
+  val studentAssignedResp = (studentAssignedRespQuery, responsableParser)
+  val studentAssignedDispatcher = (studentAssignedDispatcherQuery, responsableParser)
   val responsableById = (responsableByIdQuery, responsableParser)
   val currentShift = (currentShiftsBySchoolQuery, shiftParser)
   val assignedStudentsByResp = (assignedStudentsByRespQuery, departureParser)

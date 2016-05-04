@@ -83,7 +83,7 @@ CREATE TABLE aulatec.responsable(
 	password varchar(80) NOT NULL UNIQUE,
 	pais char(2) NOT NULL,
 	es_docente boolean  NOT NULL DEFAULT false,
-	device_type char(8),
+	device_type varchar(8),
 	device_reg_id varchar(120),
 	CONSTRAINT responsable_id_pk PRIMARY KEY (id)
 );

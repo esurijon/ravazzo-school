@@ -1,5 +1,6 @@
 package com.aulatec.egress
 
+import scala.Left
 import scala.concurrent.Future
 
 import org.joda.time.LocalDate
@@ -7,24 +8,23 @@ import org.joda.time.LocalTime
 
 import com.aulatec.Dao
 import com.aulatec.push.Data
+import com.aulatec.push.MultiPushService
 import com.aulatec.push.PushMessage
 import com.aulatec.push.PushService
 import com.aulatec.users.Alumno
+import com.aulatec.users.Id
 import com.aulatec.users.Responsable
 import com.aulatec.users.UserService
+import com.google.inject.ImplementedBy
 
-import anorm._
 import anorm.NamedParameter.string
 import anorm.sqlToSimple
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.cache.CacheApi
 import play.api.db.Database
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.Controller
 import play.db.NamedDatabase
-import com.aulatec.users.Id
 
 @Singleton
 class EgressManagerService @Inject() (pushSevice: PushService, userService: UserService, @NamedDatabase("default") db: Database) extends Controller {
@@ -83,8 +83,16 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
 
   }
 
-  private def getStudentDispatcher(student: Alumno): Future[Option[Responsable]] = {
-    userService.getResponsable(3) map (Some(_))
+  private def getStudentDispatcher(student: Alumno): Future[Option[Responsable]] = Future {
+    val (currentDate, currentTime) = current()
+
+    db.withConnection { implicit c =>
+      Dao.studentAssignedDispatcher._1
+        .on("studentId" -> student.id)
+        .on("egressDate" -> currentDate.toDate)
+        .as(Dao.studentAssignedDispatcher._2.singleOpt)
+    }
+
   }
 
   private def logDeparture(resp: Responsable, student: Alumno): Future[Unit] = Future {
@@ -113,14 +121,26 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
       }
     }
   }
-  
-  def notifyDeparture(dispatcher: Responsable, departure: Departure): Future[String] = {
+
+  def notifyDeparture(dispatcher: Responsable, studentId: Id): Future[String] = {
     (for {
-      resp <- userService.getResponsable(departure.respId)
-      _ <- updateDeparture(departure.student)
-      pushResult <- pushDepartureNotification(departure.student, resp)
+      student <- userService.getStudent(studentId)
+      resp <- getStudentResponsable(studentId)
+      _ <- updateDeparture(student)
+      pushResult <- pushDepartureNotification(student, resp)
     } yield (pushResult)) map { result =>
       result.fold(identity, _ => "Ok")
+    }
+  }
+
+  def getStudentResponsable(studentId: Id): Future[Responsable] = Future {
+    val (currentDate, currentTime) = current()
+
+    db.withConnection { implicit c =>
+      Dao.studentAssignedResp._1
+        .on("studentId" -> studentId)
+        .on("egressDate" -> currentDate.toDate)
+        .as(Dao.studentAssignedResp._2.single)
     }
   }
 
@@ -135,7 +155,6 @@ class EgressManagerService @Inject() (pushSevice: PushService, userService: User
     }
 
   }
-
 
   private def pushDepartureNotification(student: Alumno, resp: Responsable): Future[Either[String, Unit]] = {
     resp.device.fold[Future[Either[String, Unit]]] {

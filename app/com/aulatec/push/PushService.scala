@@ -17,8 +17,8 @@ abstract class PushService {
 @Singleton
 class MultiPushService @Inject() (gcm: GcmPushService, smtp: SmtpPushService) extends PushService {
   override def sendMessage[T](message: PushMessage[T])(implicit wrt: Writes[Data[T]]): Future[Either[String, Unit]] = message.to.deviceType match {
-    case "Android" => gcm.sendMessage(message)
-    case "Email" => smtp.sendMessage(message)
+    case "ANDROID" => gcm.sendMessage(message)
+    case "EMAIL" => smtp.sendMessage(message)
     case other => Future.successful(Left(s"Unknown device type $other for message: $message"))
   }
 }
