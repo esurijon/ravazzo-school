@@ -41,7 +41,7 @@ class GcmPushService @Inject() (ws: WSClient, conf: Configuration) extends PushS
             if (response.failure == 0) {
               Right(())
             } else {
-              logger.error(response.toString)              
+              logger.error(s"Google Cloud Message error: ${pushResponse.body}")              
               response.results.fold {
                 Left("No error information")
               } { errList =>
