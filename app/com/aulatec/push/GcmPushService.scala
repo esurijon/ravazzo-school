@@ -36,12 +36,13 @@ class GcmPushService @Inject() (ws: WSClient, conf: Configuration) extends PushS
         Left(pushResponse.statusText)
       } else {
         Json.parse(pushResponse.body).validate[GcmResponse].fold[Either[String, Unit]](
-          _ => Left("Invalid response format"),
+          _ => Left(pushResponse.body),
           response => {
             if (response.failure == 0) {
               Right(())
             } else {
-              logger.error(s"Google Cloud Message error: ${pushResponse.body}")              
+              logger.error(s"Google Cloud Message Request: ${Json.toJson(message)}")              
+              logger.error(s"Google Cloud Message Response: ${pushResponse.body}")              
               response.results.fold {
                 Left("No error information")
               } { errList =>
