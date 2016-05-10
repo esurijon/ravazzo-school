@@ -41,7 +41,7 @@ class GcmPushService @Inject() (ws: WSClient, conf: Configuration) extends PushS
             if (response.failure == 0) {
               Right(())
             } else {
-              logger.error(response)              
+              logger.error(response.toString)              
               response.results.fold {
                 Left("No error information")
               } { errList =>
