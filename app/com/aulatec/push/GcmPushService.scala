@@ -31,23 +31,24 @@ class GcmPushService @Inject() (ws: WSClient, conf: Configuration) extends PushS
         "Authorization" -> s"key=$apiKey")
 
     pushRequest.post(Json.toJson(message)).map { pushResponse =>
-      logger.trace(s"PUSH MESSAGE RESULT: ${pushResponse.body} (${pushResponse.status})")
       if (pushResponse.status >= 300) {
+        logger.error(s"Google Cloud Message Request: ${Json.toJson(message)}")
+        logger.error(s"Google Cloud Message Response: ${pushResponse.statusText}")
         Left(pushResponse.statusText)
       } else {
         Json.parse(pushResponse.body).validate[GcmResponse].fold[Either[String, Unit]](
-          _ => Left(pushResponse.body),
+          _ => {
+            logger.error(s"Google Cloud Message Request: ${Json.toJson(message)}")
+            logger.error(s"Google Cloud Message Response: ${pushResponse.body}")
+            Left(pushResponse.body)
+          },
           response => {
             if (response.failure == 0) {
               Right(())
             } else {
-              logger.error(s"Google Cloud Message Request: ${Json.toJson(message)}")              
-              logger.error(s"Google Cloud Message Response: ${pushResponse.body}")              
-              response.results.fold {
-                Left("No error information")
-              } { errList =>
-                Left(errList.map(_.error).mkString(", "))
-              }
+              logger.error(s"Google Cloud Message Request: ${Json.toJson(message)}")
+              logger.error(s"Google Cloud Message Response: ${pushResponse.body}")
+              Left(pushResponse.body)
             }
           })
       }
